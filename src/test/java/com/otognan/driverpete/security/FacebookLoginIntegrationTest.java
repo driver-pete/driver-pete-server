@@ -115,7 +115,7 @@ public class FacebookLoginIntegrationTest {
         String token = this.getTestToken();
         String response = this.requestWithToken(token,
                 this.basePath + "api/restricted/generic", String.class).getBody();
-        assertThat(response, equalTo("AUTHENTICATED_ONLYE"));
+        assertThat(response, equalTo("AUTHENTICATED_ONLY"));
     }
     
     @Test

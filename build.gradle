@@ -37,22 +37,13 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.boot:spring-boot-starter-social-facebook')
 	compile('org.springframework.social:spring-social-security:1.1.0.RELEASE')
-
-	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
 	
 	compile('org.hibernate:hibernate-validator')
-
-    //TO REMOVE
-	compile('org.apache.httpcomponents:httpclient:4.3')
-	compile('com.googlecode.json-simple:json-simple:1.1')
-	compile('org.apache.commons:commons-lang3:3.0')
-
 
 	testCompile('org.apache.httpcomponents:httpclient:4.3')
 	testCompile('net.sourceforge.htmlunit:htmlunit:2.15')
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
-   
     // The following line marks embedded tomcat as "provided" so it doesn't
     // go into WEB-INF/lib but goes to WEB-INF/lib-provided. This resolves the conflict
     // between external Tomcat (e.g. Beanstalk) and embedded one so that

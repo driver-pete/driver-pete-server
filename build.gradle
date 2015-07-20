@@ -39,6 +39,7 @@ dependencies {
     compile('org.springframework.social:spring-social-security:1.1.0.RELEASE')
     
     compile('org.hibernate:hibernate-validator')
+    compile('com.h2database:h2')
     compile('mysql:mysql-connector-java:5.1.26')
     
     testCompile('org.apache.httpcomponents:httpclient:4.3')
@@ -50,6 +51,8 @@ dependencies {
     // between external Tomcat (e.g. Beanstalk) and embedded one so that
     // you can deploy war to the cloud with system server and can run war locally.
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    
+
 }
 
 war {

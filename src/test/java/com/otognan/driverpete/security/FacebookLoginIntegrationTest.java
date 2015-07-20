@@ -30,6 +30,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
@@ -47,6 +48,7 @@ import com.gargoylesoftware.htmlunit.util.Cookie;
 @SpringApplicationConfiguration(classes = { StatelessAuthentication.class })
 @WebAppConfiguration
 @IntegrationTest({})
+@ActiveProfiles("test")
 public class FacebookLoginIntegrationTest {
 
     //private URL base;

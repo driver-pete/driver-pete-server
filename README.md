@@ -13,5 +13,13 @@ Example of token secret:
 wergwegoDsTmXfogIieDI0cD/8FpnojdfghdfJT5U9I/FGVmBzwertR8cbXTvoPjX+Pq/T/b1PqpHX0lYm0oCBjXWICA==
 
 
-On travis and amazon security properties has to be set using environmental variables.
+On other platforms (travis or amazon) security properties can be set using environmental variables.
 Notice that you can not set env var with '.', use '_' instead (e.g. export token_secret=<...>)
+
+
+==========================
+
+How to upload to amazon beanstalk.
+ - run ./gradlew war
+ - go to beanstalk console, create a new environment with tomcat server
+ - click "Upload and deploy" in the new environment, choose .war file from build/libs

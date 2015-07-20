@@ -1,15 +1,17 @@
 # driver-pete-server
 Server for driver pete
 
-To run locally, create application.properties in src/main/resources with the following content:
 
-server.port=8443
-server.ssl.key-store = src/test/resources/test_keystore
-server.ssl.key-store-password = temppwd
+Security properties can be set adding security.properties file to the src/main/resources:
 
-fb.login_form_host=www.facebook.com
-fb.api_host=graph.facebook.com
-fb.client_id=<YOUR_APP_ID>
-fb.secret=<YOUR_APP_SECRET>
-fb.redirect_uri=https://localhost:8443/signin/facebook
-fb.use_safe_https=true
+facebook.appKey=<YOUR FACEBOOK APP ID>
+facebook.appSecret=<YOUR FACEBOOK APP SECRET>
+token.secret=<BIG RANDOM STRING (e.g. 96 characters)>
+
+
+Example of token secret:
+wergwegoDsTmXfogIieDI0cD/8FpnojdfghdfJT5U9I/FGVmBzwertR8cbXTvoPjX+Pq/T/b1PqpHX0lYm0oCBjXWICA==
+
+
+On travis and amazon security properties has to be set using environmental variables.
+Notice that you can not set env var with '.', use '_' instead (e.g. export token_secret=<...>)

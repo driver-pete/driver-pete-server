@@ -12,31 +12,44 @@ apply plugin: 'eclipse'
 apply plugin: 'spring-boot'
 apply plugin: 'war'
 
+jar {
+    baseName = 'driver-peter-server'
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+}
+
+eclipse {
+  jdt {
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+  }
+}
 
 repositories {
     mavenCentral()
-    maven { url "http://repo.spring.io/libs-snapshot" }
-    maven { url 'http://repo.spring.io/snapshot' }
+    maven {url 'http://repo.spring.io/release'}
+    maven {url 'http://repo.spring.io/snapshot'}
 }
 
 dependencies {
-	compile("org.springframework.boot:spring-boot-starter-web")
-	compile("org.springframework.boot:spring-boot-starter-test")
-
-	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-	compile('org.springframework.security:spring-security-web:4.0.0.CI-SNAPSHOT')
-	compile('org.springframework.security:spring-security-config:4.0.0.CI-SNAPSHOT')
-
-	compile('org.apache.httpcomponents:httpclient:4.3')
-	compile('com.googlecode.json-simple:json-simple:1.1')
-	compile('org.apache.commons:commons-lang3:3.0')
-
-	// The following line marks embedded tomcat as "provided" so it doesn't
-	// go into WEB-INF/lib but goes to WEB-INF/lib-provided. This resolves the conflict
-	// between external Tomcat (e.g. Beanstalk) and embedded one so that
-	// you can deploy war to the cloud with system server and can run war locally.
-	providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
-    testCompile "junit:junit:4.+"
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile('org.springframework.boot:spring-boot-starter-social-facebook')
+    compile('org.springframework.social:spring-social-security:1.1.0.RELEASE')
+    
+    compile('org.hibernate:hibernate-validator')
+    
+    testCompile('org.apache.httpcomponents:httpclient:4.3')
+    testCompile('net.sourceforge.htmlunit:htmlunit:2.15')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    
+    // The following line marks embedded tomcat as "provided" so it doesn't
+    // go into WEB-INF/lib but goes to WEB-INF/lib-provided. This resolves the conflict
+    // between external Tomcat (e.g. Beanstalk) and embedded one so that
+    // you can deploy war to the cloud with system server and can run war locally.
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    runtime('com.h2database:h2')
 }
 
 war {

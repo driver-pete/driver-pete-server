@@ -145,7 +145,7 @@ public class StatelessAuthenticationSecurityConfig extends WebSecurityConfigurer
 			.authorizeRequests()
     			//allow anonymous font and template requests
 			    .antMatchers("/").permitAll()
-    			.antMatchers("/index.html").permitAll()
+			    .antMatchers("/index.html").permitAll()
     			.antMatchers("/favicon.ico").permitAll()
     			.antMatchers("/resources/**").permitAll()
     

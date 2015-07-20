@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class User implements SocialUserDetails {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
 	@NotNull

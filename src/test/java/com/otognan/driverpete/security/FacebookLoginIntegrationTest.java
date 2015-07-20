@@ -149,6 +149,10 @@ public class FacebookLoginIntegrationTest {
         
         HtmlPage page1 = webClient.getPage(loginRedirect.toString());
         HtmlForm form = (HtmlForm) page1.getElementById("login_form");
+        if (form == null) {
+            throw new Exception("Login form is not found. Possibly we are not on login page. " +
+                    "Most of the time it happens when facebook rejects our app url");
+        }
         HtmlSubmitInput button = (HtmlSubmitInput) form.getInputsByValue("Log In").get(0);
         HtmlTextInput textField = form.getInputByName("email");
         textField.setValueAttribute(facebookUsername);

@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 
 
 @Configuration
-@PropertySource(value="classpath:social.properties",
+@PropertySource(value="classpath:security.properties",
     ignoreResourceNotFound=true)
 class TestConfiguration {}
 
@@ -32,10 +32,16 @@ public class SecurityPropertiesAccessTest {
 
     @Test
     public void testSocialPropertyAccess() throws Exception {
-        String property = appContext.getEnvironment().getProperty("mycustomprop.x");
-        log.error("-------------------------------------");
-        log.error(property);
-        assertThat(property, equalTo("xxxxxxx"));
+        /*
+         * Here we test that we have access to facebook security properties.
+         * On travis these variables has to be set for the repo on the repository settings page
+         * available only to the owner so its secure.
+         * Locally we get these properties from security.properties file that has to be added to
+         * src/main/resources
+         */
+        assertNotNull(appContext.getEnvironment().getProperty("facebook.appKey"));
+        assertNotNull(appContext.getEnvironment().getProperty("facebook.appSecret"));
+        assertNotNull(appContext.getEnvironment().getProperty("token.secret"));
     }
     
 }

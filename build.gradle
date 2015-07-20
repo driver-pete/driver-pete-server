@@ -53,8 +53,8 @@ dependencies {
 }
 
 war {
-    baseName = 'test-gradle-spring'
-    version =  '0.0.7'
+    baseName = 'driver-peter-server'
+    version =  '0.0.2'
 }
 
 test {

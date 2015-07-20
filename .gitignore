@@ -18,3 +18,5 @@ hs_err_pid*
 # gradle
 .gradle
 .settings
+
+.DS_Store

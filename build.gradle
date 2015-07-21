@@ -57,7 +57,7 @@ dependencies {
 
 war {
     baseName = 'driver-peter-server'
-    version =  '0.0.2'
+    version =  '0.0.4'
 }
 
 test {

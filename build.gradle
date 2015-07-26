@@ -41,6 +41,7 @@ dependencies {
     compile('org.hibernate:hibernate-validator')
     compile('com.h2database:h2')
     compile('mysql:mysql-connector-java:5.1.26')
+    compile('c3p0:c3p0:0.9.1.2')
     
     testCompile('org.apache.httpcomponents:httpclient:4.3')
     testCompile('net.sourceforge.htmlunit:htmlunit:2.15')
@@ -57,7 +58,7 @@ dependencies {
 
 war {
     baseName = 'driver-peter-server'
-    version =  '0.0.4'
+    version =  '0.0.9'
 }
 
 test {
@@ -67,5 +68,5 @@ test {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+    gradleVersion = '2.5'
 }

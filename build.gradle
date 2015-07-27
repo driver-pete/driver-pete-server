@@ -42,10 +42,15 @@ dependencies {
     compile('com.h2database:h2')
     compile('mysql:mysql-connector-java:5.1.26')
     compile('c3p0:c3p0:0.9.1.2')
+   
+    compile('commons-codec:commons-codec:1.9')
+    
+    compile('com.amazonaws:aws-java-sdk-s3:1.10.6')
     
     testCompile('org.apache.httpcomponents:httpclient:4.3')
     testCompile('net.sourceforge.htmlunit:htmlunit:2.15')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.squareup.retrofit:retrofit:1.9.0')
     
     // The following line marks embedded tomcat as "provided" so it doesn't
     // go into WEB-INF/lib but goes to WEB-INF/lib-provided. This resolves the conflict

@@ -8,6 +8,9 @@ facebook.appKey=<YOUR FACEBOOK APP ID>
 facebook.appSecret=<YOUR FACEBOOK APP SECRET>
 token.secret=<BIG RANDOM STRING (e.g. 96 characters)>
 
+AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY>
+AWS_SECRET_KEY=<YOUR_AWS_SECRET_KEY>
+
 
 Example of token secret:
 wergwegoDsTmXfogIieDI0cD/8FpnojdfghdfJT5U9I/FGVmBzwertR8cbXTvoPjX+Pq/T/b1PqpHX0lYm0oCBjXWICA==

@@ -19,6 +19,13 @@ public class AWSConfiguration {
     
     @Bean
     public AWSCredentials amazonAWSCredentials() {
+        // Beanstalk defines empty keys by default, so we better check it here
+        if(amazonAWSAccessKey == null || amazonAWSAccessKey.isEmpty()) {
+            throw new IllegalArgumentException("AWSAccessKey is empty or null");
+        }
+        if(amazonAWSSecretKey == null || amazonAWSSecretKey.isEmpty()) {
+            throw new IllegalArgumentException("AWSSecretKey is empty or null");
+        }
         return new BasicAWSCredentials(amazonAWSAccessKey, amazonAWSSecretKey);
     }
 }

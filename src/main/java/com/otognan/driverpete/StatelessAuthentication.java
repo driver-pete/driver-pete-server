@@ -1,4 +1,4 @@
-package com.otognan.driverpete.security;
+package com.otognan.driverpete;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

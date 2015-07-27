@@ -45,6 +45,8 @@ dependencies {
    
     compile('commons-codec:commons-codec:1.9')
     
+    compile('com.amazonaws:aws-java-sdk-s3:1.10.6')
+    
     testCompile('org.apache.httpcomponents:httpclient:4.3')
     testCompile('net.sourceforge.htmlunit:htmlunit:2.15')
     testCompile('org.springframework.boot:spring-boot-starter-test')

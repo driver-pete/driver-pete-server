@@ -12,7 +12,6 @@ import org.apache.commons.codec.binary.Base64;
 import com.otognan.driverpete.BaseStatelesSecurityITTest;
 
 
-
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     
     private TrajectoryLogicApi server() throws Exception {
@@ -20,16 +19,23 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         return this.serverAPI(token, TrajectoryLogicApi.class);
     }
 
+//    @Test
+//    public void determineDataLength() throws Exception {
+//        String inputStr = "   &*()!@#$$%^&())((     ()/n/ndfgsd)(*)(@''''???";
+//        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes("UTF-8"));
+//        TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
+//        
+//        int dataLenth = this.server().compressedLength(in);
+//        
+//        assertThat(dataLenth, equalTo(inputStr.length()));
+//    }
+    
     @Test
-    public void getTrajectorySecuredAsUser() throws Exception {
- 
-        String inputStr = "   &*()!@#$$%^&())((     ()/n/ndfgsd)(*)(@''''???";
-        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes("UTF-8"));
+    public void uploadToS3() throws Exception {
+        String inputStr = "Hello. I'm going to be uploaded to S3";
+        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes());
         TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
-        
-        int dataLenth = this.server().compressed(in);
-        
-        assertThat(dataLenth, equalTo(inputStr.length()));
+        this.server().compressed(in);
     }
     
 }

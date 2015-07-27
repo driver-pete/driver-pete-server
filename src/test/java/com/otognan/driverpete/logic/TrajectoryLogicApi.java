@@ -5,6 +5,7 @@ import retrofit.client.Response;
 import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.POST;
+import retrofit.http.Query;
 import retrofit.mime.TypedInput;
 
 public interface TrajectoryLogicApi {
@@ -12,6 +13,6 @@ public interface TrajectoryLogicApi {
     int compressedLength(@Body TypedInput body);
  
     @POST("/api/trajectory/compressed")
-    Response compressed(@Body TypedInput body);
+    Response compressed(@Query("label") String label, @Body TypedInput body);
 }
     

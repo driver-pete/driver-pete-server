@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.amazonaws.AmazonClientException;
@@ -40,11 +41,12 @@ public class TrajectoryController {
     @RequestMapping(value = "/api/trajectory/compressed",
             method = RequestMethod.POST)
     public void uploadTrajectory(Principal principal,
+            @RequestParam("label") String label,
             HttpEntity<byte[]> requestEntity) throws Exception {  
         byte[] payload = Base64.decodeBase64(requestEntity.getBody());
          
         String bucketName = "driverpete-storage";
-        String keyName = "trajectory0";
+        String keyName = label;
         
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
         try {

@@ -53,13 +53,16 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         this.server().compressed(trajectoryName, in);
         
         // Check that file is there
-        AmazonS3 s3Client = new AmazonS3Client(awsCredentials);      
-        S3Object object = s3Client.getObject(new GetObjectRequest("driverpete-storage", trajectoryName));
+        AmazonS3 s3Client = new AmazonS3Client(awsCredentials);  
+        
+        String uploadedKey = "TestMike/" + trajectoryName;
+        
+        S3Object object = s3Client.getObject(new GetObjectRequest("driverpete-storage", uploadedKey));
         
         String outputStr = IOUtils.toString(new InputStreamReader(
                 object.getObjectContent()));
         
-        s3Client.deleteObject("driverpete-storage", trajectoryName);
+        s3Client.deleteObject("driverpete-storage", uploadedKey);
         
         assertThat(inputStr, equalTo(outputStr));
     }

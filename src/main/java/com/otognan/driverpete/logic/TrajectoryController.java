@@ -43,10 +43,12 @@ public class TrajectoryController {
     public void uploadTrajectory(Principal principal,
             @RequestParam("label") String label,
             HttpEntity<byte[]> requestEntity) throws Exception {  
+        
+        User user = (User)((Authentication)principal).getPrincipal(); 
         byte[] payload = Base64.decodeBase64(requestEntity.getBody());
          
         String bucketName = "driverpete-storage";
-        String keyName = label;
+        String keyName = user.getUsername() + "/" + label;
         
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
         try {

@@ -9,12 +9,15 @@ import com.otognan.driverpete.BaseStatelesSecurityITTest;
 
 
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
+    
+    private TrajectoryLogicApi server() throws Exception {
+        String token = this.getTestToken();
+        return this.serverAPI(token, TrajectoryLogicApi.class);
+    }
 
     @Test
     public void getTrajectorySecuredAsUser() throws Exception {
-        String token = this.getTestToken();
-        String response = this.requestWithToken(token,
-                this.basePath + "/api/trajectory/hello", String.class).getBody();
+        String response = this.server().trajectoryHello();
         assertThat(response, equalTo("HELLO"));
     }
     

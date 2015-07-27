@@ -11,10 +11,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -30,6 +26,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
+
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
+import retrofit.client.ApacheClient;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
@@ -53,14 +53,7 @@ public abstract class BaseStatelesSecurityITTest {
     
     @Before
     public void setUp() throws Exception {
-        SSLContextBuilder builder = new SSLContextBuilder();
-        // trust self signed certificate
-        builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
-        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-                builder.build(),
-                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        final HttpClient httpClient = HttpClients.custom()
-                .setSSLSocketFactory(sslConnectionSocketFactory).build();
+        final HttpClient httpClient = UnsafeHttpsClient.createUnsafeClient();
 
         this.template = new TestRestTemplate();
         this.template
@@ -131,5 +124,23 @@ public abstract class BaseStatelesSecurityITTest {
         HttpEntity<T> requestEntity = new HttpEntity<T>(null, requestHeaders);
         return template.exchange(path,
               HttpMethod.GET, requestEntity, returnType);
+    }
+    
+    protected <T> T serverAPI(final String token, Class<T> apiClass) {
+        RequestInterceptor requestInterceptor = new RequestInterceptor() {
+            @Override
+            public void intercept(RequestFacade request) {
+                request.addHeader("X-AUTH-TOKEN", token);
+            }
+        };
+
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(this.basePath)
+                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setClient(new ApacheClient(UnsafeHttpsClient.createUnsafeClient()))
+                .setRequestInterceptor(requestInterceptor)
+                .build();
+
+       return restAdapter.create(apiClass);
     }
 }

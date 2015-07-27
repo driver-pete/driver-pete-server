@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import com.otognan.driverpete.BaseStatelesSecurityITTest;
 
 
-public class FacebookLoginIntegrationTest extends BaseStatelesSecurityITTest {
-
+//public class FacebookLoginIntegrationTest extends BaseStatelesSecurityITTest {
+//
 //    @Test
 //    public void getAnonymousUser() throws Exception {
 //        ResponseEntity<User> response = template.getForEntity(
@@ -51,4 +51,4 @@ public class FacebookLoginIntegrationTest extends BaseStatelesSecurityITTest {
 //                this.basePath + "api/restricted/generic", String.class);
 //        assertThat(response.getStatusCode(), equalTo(HttpStatus.FORBIDDEN));
 //    }
-}
+//}

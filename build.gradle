@@ -42,6 +42,8 @@ dependencies {
     compile('com.h2database:h2')
     compile('mysql:mysql-connector-java:5.1.26')
     compile('c3p0:c3p0:0.9.1.2')
+   
+    compile('commons-codec:commons-codec:1.9')
     
     testCompile('org.apache.httpcomponents:httpclient:4.3')
     testCompile('net.sourceforge.htmlunit:htmlunit:2.15')

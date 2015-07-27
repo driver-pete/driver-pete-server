@@ -5,7 +5,12 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import retrofit.mime.TypedByteArray;
+import retrofit.mime.TypedInput;
+import org.apache.commons.codec.binary.Base64;
+
 import com.otognan.driverpete.BaseStatelesSecurityITTest;
+
 
 
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
@@ -17,8 +22,14 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
 
     @Test
     public void getTrajectorySecuredAsUser() throws Exception {
-        String response = this.server().trajectoryHello();
-        assertThat(response, equalTo("HELLO"));
+ 
+        String inputStr = "   &*()!@#$$%^&())((     ()/n/ndfgsd)(*)(@''''???";
+        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes("UTF-8"));
+        TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
+        
+        int dataLenth = this.server().compressed(in);
+        
+        assertThat(dataLenth, equalTo(inputStr.length()));
     }
     
 }

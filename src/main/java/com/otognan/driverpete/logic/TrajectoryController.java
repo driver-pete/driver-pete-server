@@ -81,5 +81,18 @@ public class TrajectoryController {
         }
         
     }
+    
+    @Autowired
+    private TrajectoryEndpointWorker worker;
+    
+    // Method for testing of binary upload
+    @RequestMapping(value = "/api/trajectory/endpoints", method = RequestMethod.GET)
+    public String trajectoryEndpoints() {
+        System.out.println("Startin function...");
+        worker.printThings("WORKER HELLO");
+        String result =  "\"HELLO TRAJECTORY\"";
+        System.out.println("Finishing function.");
+        return result;
+    }
 
 }

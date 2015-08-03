@@ -18,5 +18,9 @@
 		<button ng-click="getSocialDetails()">Get Social Details</button>
 		<pre>{{socialDetails | json}}</pre>
 	</div>
+    <div ng-show="authenticated">
+        <button ng-click="getTrajectoryEndpoints()">Get trajectory endpoints</button>
+        <pre>{{trajectoryEndpoints | json}}</pre>
+    </div>
 </body>
 </html>

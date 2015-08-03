@@ -53,4 +53,10 @@ app.controller('AuthCtrl', function ($scope, $rootScope, $http, $cookies) {
 			$scope.socialDetails = socialDetails;
 		});
 	};
+	
+	$scope.getTrajectoryEndpoints = function() {
+        $http.get('/api/trajectory/endpoints').success(function (trajectoryEndpoints) {
+            $scope.trajectoryEndpoints = trajectoryEndpoints;
+        });
+    };
 });

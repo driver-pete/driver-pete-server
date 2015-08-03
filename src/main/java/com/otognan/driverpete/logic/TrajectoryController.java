@@ -29,6 +29,9 @@ public class TrajectoryController {
     
     @Autowired
     AWSCredentials awsCredentials;
+    
+    @Autowired
+    private TrajectoryEndpointWorker worker;
 
     // Method for testing of binary upload
     @RequestMapping(value = "/api/trajectory/compressed_length",
@@ -81,9 +84,6 @@ public class TrajectoryController {
         }
         
     }
-    
-    @Autowired
-    private TrajectoryEndpointWorker worker;
     
     // Method for testing of binary upload
     @RequestMapping(value = "/api/trajectory/endpoints", method = RequestMethod.GET)

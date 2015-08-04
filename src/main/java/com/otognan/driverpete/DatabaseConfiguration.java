@@ -1,4 +1,4 @@
-package com.otognan.driverpete.security;
+package com.otognan.driverpete;
 
 import javax.sql.DataSource;
 

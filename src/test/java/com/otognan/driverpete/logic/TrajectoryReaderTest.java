@@ -39,6 +39,7 @@ public class TrajectoryReaderTest {
     PropertyPlaceholderConfigurer propConfig() {
         PropertyPlaceholderConfigurer ppc =  new PropertyPlaceholderConfigurer();
         ppc.setLocation(new ClassPathResource("security.properties"));
+        ppc.setIgnoreResourceNotFound(true);
         return ppc;
     }
 

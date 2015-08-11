@@ -29,6 +29,9 @@ public class TrajectoryController {
     
     @Autowired
     AWSCredentials awsCredentials;
+    
+    @Autowired
+    private TrajectoryEndpointWorker worker;
 
     // Method for testing of binary upload
     @RequestMapping(value = "/api/trajectory/compressed_length",
@@ -80,6 +83,16 @@ public class TrajectoryController {
             throw ace;
         }
         
+    }
+    
+    // Method for testing of binary upload
+    @RequestMapping(value = "/api/trajectory/endpoints", method = RequestMethod.GET)
+    public String trajectoryEndpoints() {
+        System.out.println("Startin function...");
+        worker.printThings("WORKER HELLO");
+        String result =  "\"HELLO TRAJECTORY\"";
+        System.out.println("Finishing function.");
+        return result;
     }
 
 }

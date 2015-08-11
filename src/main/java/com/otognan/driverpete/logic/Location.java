@@ -89,4 +89,7 @@ public class Location {
         return true;
     }
     
+    public static double deltaTime(Location from, Location to) {
+        return (to.getTime() - from.getTime())/1000.;
+    }
 }

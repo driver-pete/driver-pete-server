@@ -74,7 +74,6 @@ public class TrajectoryReaderTest {
         byte[] compressedBytes = TrajectoryReader.writeTrajectory(locations);
         List<Location> locationsCopy = TrajectoryReader.readTrajectory(new ByteArrayInputStream(compressedBytes));
 
-        assertEquals(locationsCopy.size(), locations.size());
         Assert.assertThat(locationsCopy, 
                 IsIterableContainingInOrder.contains(locations.toArray()));
     }

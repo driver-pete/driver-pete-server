@@ -28,8 +28,6 @@ public class AWSConfiguration {
                 amazonAWSSecretKey.equals("${AWS_SECRET_KEY}")) {
             throw new IllegalArgumentException("AWSSecretKey is not available");
         }
-        System.out.println("______________________________");
-        System.out.println(amazonAWSAccessKey);
         return new BasicAWSCredentials(amazonAWSAccessKey, amazonAWSSecretKey);
     }
 }

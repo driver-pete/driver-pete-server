@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
 
+import org.hamcrest.collection.IsIterableContainingInOrder;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +75,8 @@ public class TrajectoryReaderTest {
         List<Location> locationsCopy = TrajectoryReader.readTrajectory(new ByteArrayInputStream(compressedBytes));
 
         assertEquals(locationsCopy.size(), locations.size());
-        //assertEquals(locationsCopy, locations);
+        Assert.assertThat(locationsCopy, 
+                IsIterableContainingInOrder.contains(locations.toArray()));
     }
    
 }

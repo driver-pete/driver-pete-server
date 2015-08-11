@@ -48,4 +48,45 @@ public class Location {
                 this.getLatitude(),
                 this.getLongitude());
     }
+
+    @Override
+    public String toString() {
+        String dateStr = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss", Locale.US).format(this.getTime());
+        return "Location [time=" + dateStr + ", latitude=" + latitude
+                + ", longitude=" + longitude + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        long temp;
+        temp = Double.doubleToLongBits(latitude);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(longitude);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + (int) (time ^ (time >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Location other = (Location) obj;
+        if (Double.doubleToLongBits(latitude) != Double
+                .doubleToLongBits(other.latitude))
+            return false;
+        if (Double.doubleToLongBits(longitude) != Double
+                .doubleToLongBits(other.longitude))
+            return false;
+        if (time != other.time)
+            return false;
+        return true;
+    }
+    
 }

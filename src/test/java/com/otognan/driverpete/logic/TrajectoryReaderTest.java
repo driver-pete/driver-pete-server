@@ -1,0 +1,43 @@
+package com.otognan.driverpete.logic;
+
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes=AWSConfiguration.class)
+public class TrajectoryReaderTest {
+    
+    @Autowired
+    AWSCredentials awsCredentials;
+
+    @Test
+    public void testTrajectoryReader() throws IOException {
+        
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        S3Object object = s3client.getObject(
+                new GetObjectRequest("driverpete-storage", "_testing/testing_merged_0"));
+        InputStream objectData = object.getObjectContent();
+        
+        
+        //Process the objectData stream.
+        objectData.close();
+        
+        assertNotNull(awsCredentials);
+    }
+
+}

@@ -3,7 +3,6 @@ package com.otognan.driverpete.logic;
 import static org.junit.Assert.*;
 
 import java.text.ParseException;
-import java.util.Date;
 
 import org.junit.Test;
 

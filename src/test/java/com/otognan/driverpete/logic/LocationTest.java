@@ -50,4 +50,30 @@ public class LocationTest {
         
         assertArrayEquals(dt, expecteddt, 1e-10);
     }
+
+    @Test
+    public void testDistance() throws ParseException {
+        String [] locationsStr = {
+         "04-08-2015_14-35-50 32.936004 -117.23537",
+         "04-08-2015_14-52-31 32.934912 -117.236338",
+         "04-08-2015_14-52-37 32.935667 -117.235796",
+         "04-08-2015_14-59-30 32.935667 -117.235796",
+         "04-08-2015_14-59-30 32.936034 -117.23537",
+        };
+
+        ArrayList<Location> locations = new ArrayList<Location>();
+        for (String el : locationsStr) {
+            locations.add(Location.fromString(el));
+        }
+        
+        double[] ds = new double[locations.size()-1];
+        for (int i = 0; i < locations.size() - 1; i++) {
+            ds[i] = Location.distance(locations.get(i), locations.get(i+1));
+        }
+        
+        // values from python
+        double[] expectedds = {151.20243391843636, 97.87941457631524, 0.0, 56.95460850285275};
+        
+        assertArrayEquals(ds, expectedds, 1e-5);
+    }
 }

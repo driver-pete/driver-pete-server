@@ -28,23 +28,22 @@ import com.amazonaws.services.s3.model.S3Object;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={AWSConfiguration.class,
-        TrajectoryReaderTest.TestPropertiesConfiguration.class})
+@ContextConfiguration(classes={AWSConfiguration.class})
 public class TrajectoryReaderTest {
     
     @Autowired
     AWSCredentials awsCredentials;
 
-    @Configuration
-    static class TestPropertiesConfiguration {
-        @Bean
-        PropertyPlaceholderConfigurer propConfig() {
-            PropertyPlaceholderConfigurer ppc =  new PropertyPlaceholderConfigurer();
-            ppc.setLocation(new ClassPathResource("security.properties"));
-            ppc.setIgnoreResourceNotFound(true);
-            return ppc;
-        }
-    }
+//    @Configuration
+//    static class TestPropertiesConfiguration {
+//        @Bean
+//        PropertyPlaceholderConfigurer propConfig() {
+//            PropertyPlaceholderConfigurer ppc =  new PropertyPlaceholderConfigurer();
+//            ppc.setLocation(new ClassPathResource("security.properties"));
+//            ppc.setIgnoreResourceNotFound(true);
+//            return ppc;
+//        }
+//    }
 
     @Test
     public void testTrajectoryReader() throws IOException, ParseException {

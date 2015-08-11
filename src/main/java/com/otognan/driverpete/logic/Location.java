@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class Location {
     
@@ -34,9 +35,11 @@ public class Location {
     
     // Create location from serialized trajectory string:
     // "04-08-2015_14-35-50 32.936004 -117.235370"
+    // So far we ignore timezones and force timezone to be Pacific Daylight Time
     public static Location fromString(String str) throws ParseException {
         String[] parts = str.split(" ");
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("PDT"));
         Date date = formatter.parse(parts[0]);
         return new Location(date.getTime(), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
     }

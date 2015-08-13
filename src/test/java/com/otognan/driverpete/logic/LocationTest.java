@@ -14,7 +14,7 @@ public class LocationTest {
 
     @Test
     public void testLocationFromString() throws ParseException {
-        String locationString = "04-08-2015_14-35-50 32.936004 -117.235370";
+        String locationString = "04-08-2015_14-35-50_PDT 32.936004 -117.235370";
         Location l = Location.fromString(locationString);
 
         assertEquals(1438724150000l, l.getTime());
@@ -27,13 +27,13 @@ public class LocationTest {
     @Test
     public void testDeltaTimer() throws ParseException {
         String [] locationsStr = {
-         "04-08-2015_14-35-50 0 0",
-         "04-08-2015_14-52-31 0 0",
-         "04-08-2015_14-52-37 0 0",
-         "04-08-2015_14-59-30 0 0",
-         "04-08-2015_14-59-30 0 0",
-         "05-08-2015_15-46-30 0 0",
-         "05-09-2015_15-46-38 0 0",
+         "04-08-2015_14-35-50_PDT 0 0",
+         "04-08-2015_14-52-31_PDT 0 0",
+         "04-08-2015_14-52-37_PDT 0 0",
+         "04-08-2015_14-59-30_PDT 0 0",
+         "04-08-2015_14-59-30_PDT 0 0",
+         "05-08-2015_15-46-30_PDT 0 0",
+         "05-09-2015_15-46-38_PDT 0 0",
         };
         
         ArrayList<Location> locations = new ArrayList<Location>();
@@ -54,11 +54,11 @@ public class LocationTest {
     @Test
     public void testDistance() throws ParseException {
         String [] locationsStr = {
-         "04-08-2015_14-35-50 32.936004 -117.23537",
-         "04-08-2015_14-52-31 32.934912 -117.236338",
-         "04-08-2015_14-52-37 32.935667 -117.235796",
-         "04-08-2015_14-59-30 32.935667 -117.235796",
-         "04-08-2015_14-59-30 32.936034 -117.23537",
+         "04-08-2015_14-35-50_PDT 32.936004 -117.23537",
+         "04-08-2015_14-52-31_PDT 32.934912 -117.236338",
+         "04-08-2015_14-52-37_PDT 32.935667 -117.235796",
+         "04-08-2015_14-59-30_PDT 32.935667 -117.235796",
+         "04-08-2015_14-59-30_PDT 32.936034 -117.23537",
         };
 
         ArrayList<Location> locations = new ArrayList<Location>();

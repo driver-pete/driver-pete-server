@@ -38,23 +38,24 @@ public class Location {
     // So far we ignore timezones and force timezone to be Pacific Daylight Time
     public static Location fromString(String str) throws ParseException {
         String[] parts = str.split(" ");
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
-        formatter.setTimeZone(TimeZone.getTimeZone("PDT"));
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss_z");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date date = formatter.parse(parts[0]);
+        //date.
         return new Location(date.getTime(), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
     }
     
     // returns string to put into trajectory serialization file
     public String toSerializationString() {
         return String.format("%s %f %f",
-                new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss", Locale.US).format(this.getTime()),
+                new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss_z", Locale.US).format(this.getTime()),
                 this.getLatitude(),
                 this.getLongitude());
     }
 
     @Override
     public String toString() {
-        String dateStr = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss", Locale.US).format(this.getTime());
+        String dateStr = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss_z", Locale.US).format(this.getTime());
         return "Location [time=" + dateStr + ", latitude=" + latitude
                 + ", longitude=" + longitude + "]";
     }

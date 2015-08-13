@@ -13,7 +13,7 @@ import org.junit.Test;
 public class LocationTest {
 
     @Test
-    public void testLocationFromString() throws ParseException {
+    public void testLocationFromString() throws Exception {
         String locationString = "04-08-2015_14-35-50_PDT 32.936004 -117.235370";
         Location l = Location.fromString(locationString);
 
@@ -21,7 +21,19 @@ public class LocationTest {
         assertEquals(32.936004, l.getLatitude(), 1e-10);
         assertEquals(-117.235370, l.getLongitude(), 1e-10);
         
-        assertEquals(locationString, l.toSerializationString());
+        assertEquals(locationString, l.toSerializationString("PST"));
+    }
+
+    @Test
+    public void testLocationFromStringDifferentTimezon() throws ParseException {
+        String locationString = "04-08-2015_14-35-50_MSK 32.936004 -117.235370";
+        Location l = Location.fromString(locationString);
+
+        assertEquals(1438688150000l, l.getTime());
+        assertEquals(32.936004, l.getLatitude(), 1e-10);
+        assertEquals(-117.235370, l.getLongitude(), 1e-10);
+        
+        assertEquals(locationString, l.toSerializationString("Europe/Moscow"));
     }
 
     @Test

@@ -1,6 +1,6 @@
 package com.otognan.driverpete.logic;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -11,41 +11,20 @@ import java.util.List;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.otognan.driverpete.BaseStatelesSecurityITTest;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={AWSConfiguration.class,
-        TrajectoryReaderTest.TestPropertiesConfiguration.class
-})
-public class TrajectoryReaderTest {
+public class TrajectoryReaderTest extends BaseStatelesSecurityITTest{
     
     @Autowired
     AWSCredentials awsCredentials;
-
-    @Configuration
-    static class TestPropertiesConfiguration {
-        @Bean
-        PropertyPlaceholderConfigurer propConfig() {
-            PropertyPlaceholderConfigurer ppc =  new PropertyPlaceholderConfigurer();
-            ppc.setLocation(new ClassPathResource("security.properties"));
-            ppc.setIgnoreResourceNotFound(true);
-            return ppc;
-        }
-    }
 
     @Test
     public void testTrajectoryReader() throws IOException, ParseException {

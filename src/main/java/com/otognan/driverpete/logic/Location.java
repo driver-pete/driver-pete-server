@@ -15,6 +15,8 @@ public class Location {
     private double latitude;
     // longitude, in degrees.
     private double longitude;
+    
+    public static double msToMph = 2.23694;
    
     public Location(long time, double latitude, double longitude) {
         this.time = time;

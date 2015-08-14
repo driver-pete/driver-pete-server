@@ -65,4 +65,14 @@ public class FilterTests extends BaseStatelesSecurityITTest{
         assertEquals(this.testData.size() - expectedNumberOfDuplicates,
                 filtered.size());
     }
+    
+    @Test
+    public void testRemoveDuplicateDistanceReading() {
+        TrajectoryFilter filter = new StationaryPointsFilter(1.);
+        List<Location> filtered = ApplyTrajectoryFilter.apply(this.testData, filter);
+        
+        int expectedNumberOfDuplicates = 5;
+        assertEquals(this.testData.size() - expectedNumberOfDuplicates,
+                filtered.size());
+    }
 }

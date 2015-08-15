@@ -54,5 +54,43 @@ public class FindRoutesTest extends BaseStatelesSecurityITTest{
         assertEquals(2, endpoints.size());
         assertThat(this.testData.get(478), equalTo(endpoints.get(0)));
         assertThat(this.testData.get(669), equalTo(endpoints.get(1)));
-    }    
+    }  
+    
+    @Test
+    public void testFindRoutes() throws Exception {
+        List<Location> endpoints = FindEndpointsProcessor.findEndpoints(this.testData);
+        RoutesFinder finder = new RoutesFinder(endpoints);
+        
+        for (Location point : this.testData) {
+            finder.process(point);
+        }
+        
+        List<List<Location>> AtoBPaths = finder.getAtoBRoutes();
+        List<List<Location>> BtoAPaths = finder.getBtoARoutes();
+  
+        int[][] AtoBPathsIndices = extractPathsIndices(this.testData, AtoBPaths);
+        int[][] BtoAPathsIndices = extractPathsIndices(this.testData, BtoAPaths);
+
+        int expectedAtoBIndices[][] = {
+                {485, 659}, {944, 1121}, {1358, 1552}, {2210, 2403}, {2624, 2900}, {4379, 4509}};
+
+        int expectedBtoAIndices[][] = {
+                {124, 456}, {678, 893}, {1137, 1317}, {1570, 1784}, {2423, 2596}, {3957, 4158}};
+        assertThat(AtoBPathsIndices, equalTo(expectedAtoBIndices));
+        assertThat(BtoAPathsIndices, equalTo(expectedBtoAIndices));
+    }
+    
+    private int[] pathIndices(List<Location> data, List<Location> path) {
+        int indices[] = {data.indexOf(path.get(0)),
+                data.indexOf(path.get(path.size()-1))};
+        return indices;
+    }
+    
+    private int[][] extractPathsIndices(List<Location> data, List<List<Location>> paths) {
+        int result[][] = new int[paths.size()][2];
+        for (int i = 0; i < paths.size(); i++) {
+            result[i] = this.pathIndices(data, paths.get(i));
+        }
+        return result;
+    }
 }

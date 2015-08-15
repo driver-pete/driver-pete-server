@@ -15,6 +15,8 @@ public class Location {
     private double latitude;
     // longitude, in degrees.
     private double longitude;
+    
+    public static double msToMph = 2.23694;
    
     public Location(long time, double latitude, double longitude) {
         this.time = time;
@@ -109,6 +111,14 @@ public class Location {
         computeDistanceAndBearing(from.getLatitude(), from.getLongitude(),
                 to.getLatitude(), to.getLongitude(), result);
         return result[0];
+    }
+    
+    public static double velocity(Location from, Location to) {
+        return Location.distance(from, to)/Location.deltaTime(from, to);
+    }
+    
+    public static double velocityMph(Location from, Location to) {
+        return Location.velocity(from, to)*Location.msToMph;
     }
     
     private static void computeDistanceAndBearing(double lat1, double lon1,

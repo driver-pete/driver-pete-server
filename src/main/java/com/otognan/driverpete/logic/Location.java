@@ -113,6 +113,14 @@ public class Location {
         return result[0];
     }
     
+    public static double velocity(Location from, Location to) {
+        return Location.distance(from, to)/Location.deltaTime(from, to);
+    }
+    
+    public static double velocityMph(Location from, Location to) {
+        return Location.velocity(from, to)*Location.msToMph;
+    }
+    
     private static void computeDistanceAndBearing(double lat1, double lon1,
             double lat2, double lon2, float[] results) {
         // copypaste from android.location

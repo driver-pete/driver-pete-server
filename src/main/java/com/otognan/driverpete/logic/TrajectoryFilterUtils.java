@@ -3,7 +3,7 @@ package com.otognan.driverpete.logic;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApplyTrajectoryFilter {
+public class TrajectoryFilterUtils {
     static public List<Location> apply(List<Location> data, TrajectoryFilter filter) {
         Location prevPoint = data.get(0);
         List<Location> result = new ArrayList<Location>();
@@ -16,5 +16,14 @@ public class ApplyTrajectoryFilter {
             }
         }
         return result;
+    }
+        
+    static public List<Location> filterGPSData(List<Location> data) {
+        
+        TrajectoryFilter chain[] = {new DuplicateTimeFilter(),
+                new StationaryPointsFilter(),
+                new VelocityOutliersFilter(85.)};
+        
+        return TrajectoryFilterUtils.apply(data, new TrajectoryFilterChain(chain));
     }
 }

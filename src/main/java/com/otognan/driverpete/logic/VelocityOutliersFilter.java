@@ -46,6 +46,10 @@ public class VelocityOutliersFilter implements TrajectoryFilter {
         this.maxNumberOutliers = 3;
         this.outliersCounter = this.maxNumberOutliers;
     }
+    
+    public VelocityOutliersFilter(double speedMphThershold) {
+        this(speedMphThershold, 5000.);
+    }
         
     public VelocityOutliersFilter() {
         this(85., 5000.);

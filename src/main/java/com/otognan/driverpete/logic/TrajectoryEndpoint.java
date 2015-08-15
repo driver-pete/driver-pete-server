@@ -21,8 +21,18 @@ public class TrajectoryEndpoint {
     
     private float longitude;
     
+    private String label;
+    
     @ManyToOne
     private User user;
+    
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
     
     public Long getId() {
         return id;
@@ -55,7 +65,5 @@ public class TrajectoryEndpoint {
     public void setUser(User user) {
         this.user = user;
     }
-
-
 
 }

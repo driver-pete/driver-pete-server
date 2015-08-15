@@ -4,6 +4,7 @@ package com.otognan.driverpete.logic;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.Principal;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,8 @@ import com.otognan.driverpete.security.User;
 public class TrajectoryController {
     
     @Autowired
-    AWSCredentials awsCredentials;
+    private TrajectoryService trajectoryService;
     
-    @Autowired
-    private TrajectoryEndpointWorker worker;
-
     // Method for testing of binary upload
     @RequestMapping(value = "/api/trajectory/compressed_length",
             method = RequestMethod.POST)
@@ -46,53 +44,15 @@ public class TrajectoryController {
     public void uploadTrajectory(Principal principal,
             @RequestParam("label") String label,
             HttpEntity<byte[]> requestEntity) throws Exception {  
-        
         User user = (User)((Authentication)principal).getPrincipal(); 
         byte[] payload = Base64.decodeBase64(requestEntity.getBody());
-         
-        String bucketName = "driverpete-storage";
-        String keyName = user.getUsername() + "/" + label;
-        
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        try {
-            System.out.println("Uploading a new object to S3 from a file\n");
-            
-            InputStream dataStream = new ByteArrayInputStream(payload);
-            ObjectMetadata meta = new ObjectMetadata();
-            meta.setContentLength(payload.length);
-            s3client.putObject(new PutObjectRequest(bucketName, keyName, dataStream, meta));
-
-         } catch (AmazonServiceException ase) {
-            System.out.println("Caught an AmazonServiceException, which " +
-                    "means your request made it " +
-                    "to Amazon S3, but was rejected with an error response" +
-                    " for some reason.");
-            System.out.println("Error Message:    " + ase.getMessage());
-            System.out.println("HTTP Status Code: " + ase.getStatusCode());
-            System.out.println("AWS Error Code:   " + ase.getErrorCode());
-            System.out.println("Error Type:       " + ase.getErrorType());
-            System.out.println("Request ID:       " + ase.getRequestId());
-            throw ase;
-        } catch (AmazonClientException ace) {
-            System.out.println("Caught an AmazonClientException, which " +
-                    "means the client encountered " +
-                    "an internal error while trying to " +
-                    "communicate with S3, " +
-                    "such as not being able to access the network.");
-            System.out.println("Error Message: " + ace.getMessage());
-            throw ace;
-        }
-        
+        trajectoryService.processBinaryTrajectory(user, label, payload);
     }
     
-    // Method for testing of binary upload
     @RequestMapping(value = "/api/trajectory/endpoints", method = RequestMethod.GET)
-    public String trajectoryEndpoints() {
-        System.out.println("Startin function...");
-        worker.printThings("WORKER HELLO");
-        String result =  "\"HELLO TRAJECTORY\"";
-        System.out.println("Finishing function.");
-        return result;
+    public List<TrajectoryEndpoint> trajectoryEndpoints(Principal principal) {
+        User user = (User)((Authentication)principal).getPrincipal();
+        return this.trajectoryService.getUserTrajectoryEndpoint(user);
     }
 
 }

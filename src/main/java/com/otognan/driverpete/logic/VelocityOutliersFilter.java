@@ -57,17 +57,8 @@ public class VelocityOutliersFilter implements TrajectoryFilter {
 
     @Override
     public boolean allow(Location current_p, Location next_p) {
-        double dist = Location.distance(current_p, next_p);
-        double dt = Location.deltaTime(current_p, next_p);
-        double v = Location.msToMph*dist/dt;
-        if (v > this.speedThreshold) {
-            if (this.outliersCounter > 0) {
-                this.outliersCounter -= 1;
-                return false; 
-            }
-        }
-
-        if (dist > this.distanceThreshold) {
+        if (Location.velocityMph(current_p, next_p) > this.speedThreshold ||
+                Location.distance(current_p, next_p) > this.distanceThreshold) {
             if (this.outliersCounter > 0) {
                 this.outliersCounter -= 1;
                 return false;

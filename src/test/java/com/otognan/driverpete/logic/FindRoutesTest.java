@@ -26,7 +26,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.otognan.driverpete.BaseStatelesSecurityITTest;
 
 
-public class FindEndpointsTest extends BaseStatelesSecurityITTest{
+public class FindRoutesTest extends BaseStatelesSecurityITTest{
     
     @Autowired
     private AWSCredentials awsCredentials;

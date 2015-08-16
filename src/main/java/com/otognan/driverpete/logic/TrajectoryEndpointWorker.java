@@ -1,52 +1,26 @@
 package com.otognan.driverpete.logic;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.otognan.driverpete.security.User;
 
 @Component
 public class TrajectoryEndpointWorker {
     
-    @Async
-    public void printThings(String whatToPrint) {
-        for(int i=0; i<20; i++) {
-            long threadId = Thread.currentThread().getId();
-            System.out.println(whatToPrint + i + " " + String.valueOf(threadId));
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
+    @Autowired
+    AWSCredentials awsCredentials;
     
-    @Async
-    public void findEndpoints(String trajectoryKey) {
-        
-        //download
-        //read 
-        
-        // create filters
-        DuplicateTimeFilter duplicateTime = new DuplicateTimeFilter();
-        StationaryPointsFilter stationaryPoint = new StationaryPointsFilter();
-        VelocityOutliersFilter velocityOutlier = new VelocityOutliersFilter(85.);
-        FindEndpointsProcessor processor = new FindEndpointsProcessor();
-        
-        // get user state for endpoints
-        // put state into filters
-        
-        // do filtering
-        // get endpoitns
-        
-        // determine if need to upload endpoints
-        
-        // AS A TRANSACTION
-        // read state and ednpoints, determine that the same as before,
-        // determine that trajectory key still exists
-        // upload endpoints and new state
-        // if successful, 
-        // remove trajectoryKey (or copy to "processed")
-        // FINISH TRANSACTION
-        
-    }
+
 }

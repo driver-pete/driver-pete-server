@@ -8,6 +8,7 @@ public class FindEndpointsProcessor {
     private double endpointsDistance;
     
     private List<Location> endpoints = new ArrayList<Location>();
+    private List<Location> newEndpoints = new ArrayList<Location>();
     
     private Location previousPoint = null;
 
@@ -30,12 +31,21 @@ public class FindEndpointsProcessor {
         if (dt > this.stationaryThreshold &&
                 !this.endpointExists(this.previousPoint)) {
             this.endpoints.add(this.previousPoint);
+            this.newEndpoints.add(this.previousPoint);
         }
         this.previousPoint = point;
+    }
+    
+    public List<Location> getNewEndpoints() {
+        return this.newEndpoints;
     }
 
     public List<Location> getEndpoints() {
         return this.endpoints;
+    }
+    
+    public void setEndpoints(List<Location> endpoints) {
+        this.endpoints = endpoints;
     }
     
     private boolean endpointExists(Location point) {
@@ -53,5 +63,13 @@ public class FindEndpointsProcessor {
             processor.process(location);
         }
         return processor.getEndpoints();
+    }
+    
+    public Location getPreviousPoint() {
+        return previousPoint;
+    }
+
+    public void setPreviousPoint(Location previousPoint) {
+        this.previousPoint = previousPoint;
     }
 }

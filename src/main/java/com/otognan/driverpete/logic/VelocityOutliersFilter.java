@@ -67,4 +67,13 @@ public class VelocityOutliersFilter implements TrajectoryFilter {
         this.outliersCounter = this.maxNumberOutliers;
         return true;
     }
+
+    public int getOutliersCounter() {
+        return outliersCounter;
+    }
+
+    public void setOutliersCounter(int outliersCounter) {
+        this.outliersCounter = outliersCounter;
+    }
+
 }

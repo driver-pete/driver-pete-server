@@ -1,6 +1,8 @@
 package com.otognan.driverpete.logic;
 
 
+import java.util.List;
+
 import retrofit.client.Response;
 import retrofit.http.Body;
 import retrofit.http.GET;
@@ -14,5 +16,8 @@ public interface TrajectoryLogicApi {
  
     @POST("/api/trajectory/compressed")
     Response compressed(@Query("label") String label, @Body TypedInput body);
+    
+    @GET("/api/trajectory/endpoints")
+    List<TrajectoryEndpoint> trajectoryEndpoints();
 }
     

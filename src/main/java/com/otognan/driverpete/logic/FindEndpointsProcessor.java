@@ -7,18 +7,19 @@ public class FindEndpointsProcessor {
     private double stationaryThreshold;
     private double endpointsDistance;
     
-    private List<Location> endpoints = new ArrayList<Location>();
-    private List<Location> newEndpoints = new ArrayList<Location>();
+    private List<Location> endpoints;
     
     private Location previousPoint = null;
 
-    public FindEndpointsProcessor(double stationaryThreshold, double endpointsDistance) {
+    public FindEndpointsProcessor(List<Location> endpoints,
+            double stationaryThreshold, double endpointsDistance) {
+        this.endpoints = endpoints;
         this.stationaryThreshold = stationaryThreshold;
         this.endpointsDistance = endpointsDistance;
     }
     
-    public FindEndpointsProcessor() {
-        this((60*60)*3, 1000.);
+    public FindEndpointsProcessor(List<Location> endpoints) {
+        this(endpoints, (60*60)*3, 1000.);
     }
     
     public void process(Location point) {
@@ -31,21 +32,8 @@ public class FindEndpointsProcessor {
         if (dt > this.stationaryThreshold &&
                 !this.endpointExists(this.previousPoint)) {
             this.endpoints.add(this.previousPoint);
-            this.newEndpoints.add(this.previousPoint);
         }
         this.previousPoint = point;
-    }
-    
-    public List<Location> getNewEndpoints() {
-        return this.newEndpoints;
-    }
-
-    public List<Location> getEndpoints() {
-        return this.endpoints;
-    }
-    
-    public void setEndpoints(List<Location> endpoints) {
-        this.endpoints = endpoints;
     }
     
     private boolean endpointExists(Location point) {
@@ -56,20 +44,21 @@ public class FindEndpointsProcessor {
         }
         return false;
     }
-    
-    static public List<Location> findEndpoints(List<Location> data) {
-        FindEndpointsProcessor processor = new FindEndpointsProcessor();
-        for (Location location : data) {
-            processor.process(location);
-        }
-        return processor.getEndpoints();
-    }
-    
+        
     public Location getPreviousPoint() {
         return previousPoint;
     }
 
     public void setPreviousPoint(Location previousPoint) {
         this.previousPoint = previousPoint;
+    }
+    
+    static public List<Location> findEndpoints(List<Location> data) {
+        List<Location> endpointsContainer = new ArrayList<Location>();
+        FindEndpointsProcessor processor = new FindEndpointsProcessor(endpointsContainer);
+        for (Location location : data) {
+            processor.process(location);
+        }
+        return endpointsContainer;
     }
 }

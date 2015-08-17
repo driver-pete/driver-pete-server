@@ -52,14 +52,14 @@ public class TrajectoryService {
         return trajEndpointRepo.findByUser(user);
     }
 
-    @Transactional
+    //@Transactional
     public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) {
         String bucketName = "driverpete-storage";
         String keyName = user.getUsername() + "/" + label;
         
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
         try {
-            System.out.println("Uploading a new object to S3 from a file\n");
+            System.out.println("Uploading a new object to S3 from a array of size " + binaryTrajectory.length);
             
             InputStream dataStream = new ByteArrayInputStream(binaryTrajectory);
             ObjectMetadata meta = new ObjectMetadata();
@@ -69,12 +69,12 @@ public class TrajectoryService {
             String toProcessKey = user.getUsername() + "/unprocessed/" + label;
             s3client.copyObject(bucketName, keyName, bucketName, toProcessKey);
             
-//            try {
-//                this.findEndpoints(user, toProcessKey);
-//            } catch (IOException | ParseException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
+            try {
+                this.findEndpoints(user, toProcessKey);
+            } catch (IOException | ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             
          } catch (AmazonServiceException ase) {
             System.out.println("Caught an AmazonServiceException, which " +
@@ -119,22 +119,23 @@ public class TrajectoryService {
         DuplicateTimeFilter duplicateTime = new DuplicateTimeFilter();
         StationaryPointsFilter stationaryPoint = new StationaryPointsFilter();
         VelocityOutliersFilter velocityOutlier = new VelocityOutliersFilter(85.);
-        FindEndpointsProcessor processor = new FindEndpointsProcessor();
-        
-        // get user state for endpoints and put state into filters
-        EndpointProcessorState state = stateRepository.getOne(user.getId());
-        velocityOutlier.setOutliersCounter(state.getVelocityOutliersCounter());
 
-        processor.setPreviousPoint(state.getProcessorPreviousPoint());
-        
-        List<Location> orignalEndpoints = new ArrayList<Location>();
+        List<Location> endpoints = new ArrayList<Location>();
         for (TrajectoryEndpoint endpoint : trajectoryEndpointsEntities) {
             Location location = new Location(System.currentTimeMillis(), endpoint.getLatitude(),
                     endpoint.getLongitude());
-            orignalEndpoints.add(location);
+            endpoints.add(location);
         }
         
-        processor.setEndpoints(orignalEndpoints);
+        int originalEndpointsSize = endpoints.size();
+        FindEndpointsProcessor processor = new FindEndpointsProcessor(endpoints);
+        
+        // get user state for endpoints and put state into filters
+        EndpointProcessorState state = stateRepository.findOne(user.getId());
+        if (state != null) {
+            velocityOutlier.setOutliersCounter(state.getVelocityOutliersCounter());
+            processor.setPreviousPoint(state.getProcessorPreviousPoint());
+        }
         
         // extract endpoints
         TrajectoryFilter chain[] = {duplicateTime,
@@ -148,24 +149,27 @@ public class TrajectoryService {
             processor.process(location);
         }
         
-        // determine if need to upload endpoints
-        List<Location> newEndpoints = processor.getNewEndpoints();
-        
-        for (int i = 0; i < 2 - orignalEndpoints.size(); i++) {
+
+        for (int i = originalEndpointsSize; i < Math.min(endpoints.size(), 2); i++) {
             TrajectoryEndpoint endpointEntity = new TrajectoryEndpoint();
             endpointEntity.setUser(user);
-            endpointEntity.setLatitude(newEndpoints.get(i).getLatitude());
-            endpointEntity.setLongitude(newEndpoints.get(i).getLongitude());
+            endpointEntity.setLatitude(endpoints.get(i).getLatitude());
+            endpointEntity.setLongitude(endpoints.get(i).getLongitude());
             
+            System.out.println("SAVING ENDPOINT!!!!");
             trajEndpointRepo.save(endpointEntity);
         }
 
+        if (state == null) {
+            state = new EndpointProcessorState();
+            state.setUserId(user.getId());
+        }
         state.setVelocityOutliersCounter(velocityOutlier.getOutliersCounter());
         state.setProcessorPreviousPoint(processor.getPreviousPoint());
         
         stateRepository.save(state);
         
-        s3client.deleteObject("driverpete-storage", trajectoryKey);
+        //s3client.deleteObject("driverpete-storage", trajectoryKey);
     }
     
 }

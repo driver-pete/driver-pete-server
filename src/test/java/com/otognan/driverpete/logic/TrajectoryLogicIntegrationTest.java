@@ -1,9 +1,14 @@
 package com.otognan.driverpete.logic;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +49,12 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     }
     
     @Test
-    public void uploadToS3() throws Exception {
-        String inputStr = "Hello. I'm going to be uploaded to S3";
+    public void uploadToS3SucceedsEvenIfBadData() throws Exception {
+        String inputStr = "Hello. I'm not a trajectory";
         byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes());
         TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
         
-        String trajectoryName = "_my_test_trajectory";
+        String trajectoryName = "_my_test_bad_trajectory";
         this.server().compressed(trajectoryName, in);
         
         // Check that file is there
@@ -67,4 +72,34 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         assertThat(inputStr, equalTo(outputStr));
     }
     
+    
+    @Test
+    public void findEndpoints() throws Exception {
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        S3Object object = s3client.getObject(
+                new GetObjectRequest("driverpete-storage", "_testing/testing_merged_1"));
+        InputStream objectData = object.getObjectContent();  
+        byte[] trajectoryBytes = IOUtils.toByteArray(objectData);
+        byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
+        objectData.close();
+        
+        TypedInput in = new TypedByteArray("application/octet-stream", base64Bytes);
+               
+        String trajectoryName = "_my_trajectory";
+        this.server().compressed(trajectoryName, in);
+        
+        List<TrajectoryEndpoint> endpoints = this.server().trajectoryEndpoints();
+        
+        assertThat(endpoints.size(), equalTo(2));
+        
+        List<Location> data = TrajectoryReader.readTrajectory(new ByteArrayInputStream(trajectoryBytes));
+        data = TrajectoryFilterUtils.filterGPSData(data);
+                
+        assertThat(data.get(478).getLatitude(), equalTo(endpoints.get(0).getLatitude()));
+        assertThat(data.get(478).getLongitude(), equalTo(endpoints.get(0).getLongitude()));
+       
+        assertThat(data.get(669).getLatitude(), equalTo(endpoints.get(1).getLatitude()));
+        assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1).getLongitude()));
+        
+    }
 }

@@ -74,13 +74,16 @@ public class TrajectoryService {
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
         s3client.copyObject(BUCKET_NAME, keyName, BUCKET_NAME, toProcessKey);
         
-        this.findEndpoints(user, toProcessKey);
+        //download trajectory
+        List<Location> originalTrajectory = this.downloadTrajectory(toProcessKey);
+        List<Location> trajectory = filteringService.filterTrajectory(user, originalTrajectory);
+        
+        this.findEndpoints(user, trajectory);
         
         s3client.deleteObject(BUCKET_NAME, toProcessKey);
     }
     
-    //@Async
-    public void findEndpoints(User user, String trajectoryKey) throws IOException, ParseException {
+    public void findEndpoints(User user, List<Location> filteredTrajectory) throws IOException, ParseException {
         
         List<TrajectoryEndpoint> trajectoryEndpointsEntities = trajEndpointRepo.findByUser(user);
         if (trajectoryEndpointsEntities.size() >= 2) {
@@ -88,9 +91,6 @@ public class TrajectoryService {
             return;
         }
         
-        //download trajectory
-        List<Location> trajectory = this.downloadTrajectory(trajectoryKey);
-
         List<Location> endpoints = new ArrayList<Location>();
         for (TrajectoryEndpoint endpoint : trajectoryEndpointsEntities) {
             Location location = new Location(System.currentTimeMillis(), endpoint.getLatitude(),
@@ -107,9 +107,8 @@ public class TrajectoryService {
             processor.setPreviousPoint(state.getProcessorPreviousPoint());
         }
                 
-        List<Location> filtered = filteringService.filterTrajectory(user, trajectory);
         // get endpoitns
-        for (Location location : filtered) {
+        for (Location location : filteredTrajectory) {
             processor.process(location);
         }
 

@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import retrofit.RetrofitError;
 import retrofit.mime.TypedByteArray;
 import retrofit.mime.TypedInput;
 
@@ -52,12 +53,20 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     
     @Test
     public void uploadToS3SucceedsEvenIfBadData() throws Exception {
+        /*
+         * Its important during development that even bad data in case of bug in the client
+         * goes through, because otherwise it would be lost.
+         */
         String inputStr = "Hello. I'm not a trajectory";
         byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes());
         TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
         
         String trajectoryName = "_my_test_bad_trajectory";
-        this.server().compressed(trajectoryName, in);
+        try {
+            this.server().compressed(trajectoryName, in);
+        } catch (RetrofitError ex) {
+            // expected error
+        }
         
         // Check that file is there
         AmazonS3 s3Client = new AmazonS3Client(awsCredentials);  

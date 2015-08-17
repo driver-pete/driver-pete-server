@@ -30,6 +30,8 @@ import com.otognan.driverpete.security.User;
 @Transactional
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class TrajectoryService {
+    static private final String BUCKET_NAME = "driverpete-storage";
+    
     @Autowired
     private TrajectoryEndpointRepository trajEndpointRepo;
     
@@ -45,57 +47,21 @@ public class TrajectoryService {
     
     @Transactional(readOnly = true)
     public List<TrajectoryEndpoint> getUserTrajectoryEndpoint(User user) {
-//        System.out.println("Startin function...");
-//        worker.printThings("WORKER HELLO");
-//        String result =  "\"HELLO TRAJECTORY\"";
-//        System.out.println("Finishing function.");
         return trajEndpointRepo.findByUser(user);
     }
 
     //@Transactional
-    public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) {
-        String bucketName = "driverpete-storage";
+    public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) throws IOException, ParseException {
         String keyName = user.getUsername() + "/" + label;
-        
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        try {
-            System.out.println("Uploading a new object to S3 from a array of size " + binaryTrajectory.length);
-            
-            InputStream dataStream = new ByteArrayInputStream(binaryTrajectory);
-            ObjectMetadata meta = new ObjectMetadata();
-            meta.setContentLength(binaryTrajectory.length);
-            s3client.putObject(new PutObjectRequest(bucketName, keyName, dataStream, meta));
+        this.uploadTrajectory(keyName, binaryTrajectory);
 
-            String toProcessKey = user.getUsername() + "/unprocessed/" + label;
-            s3client.copyObject(bucketName, keyName, bucketName, toProcessKey);
-            
-            try {
-                this.findEndpoints(user, toProcessKey);
-            } catch (IOException | ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-         } catch (AmazonServiceException ase) {
-            System.out.println("Caught an AmazonServiceException, which " +
-                    "means your request made it " +
-                    "to Amazon S3, but was rejected with an error response" +
-                    " for some reason.");
-            System.out.println("Error Message:    " + ase.getMessage());
-            System.out.println("HTTP Status Code: " + ase.getStatusCode());
-            System.out.println("AWS Error Code:   " + ase.getErrorCode());
-            System.out.println("Error Type:       " + ase.getErrorType());
-            System.out.println("Request ID:       " + ase.getRequestId());
-            throw ase;
-        } catch (AmazonClientException ace) {
-            System.out.println("Caught an AmazonClientException, which " +
-                    "means the client encountered " +
-                    "an internal error while trying to " +
-                    "communicate with S3, " +
-                    "such as not being able to access the network.");
-            System.out.println("Error Message: " + ace.getMessage());
-            throw ace;
-        }
+        String toProcessKey = user.getUsername() + "/unprocessed/" + label;
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        s3client.copyObject(BUCKET_NAME, keyName, BUCKET_NAME, toProcessKey);
+        
+        this.findEndpoints(user, toProcessKey);
+        
+        s3client.deleteObject(BUCKET_NAME, toProcessKey);
     }
     
     //@Async
@@ -108,12 +74,7 @@ public class TrajectoryService {
         }
         
         //download trajectory
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        S3Object object = s3client.getObject(
-                new GetObjectRequest("driverpete-storage", trajectoryKey));
-        InputStream objectData = object.getObjectContent();
-        List<Location> trajectory = TrajectoryReader.readTrajectory(objectData);
-        objectData.close();
+        List<Location> trajectory = this.downloadTrajectory(trajectoryKey);
         
         // create filters
         DuplicateTimeFilter duplicateTime = new DuplicateTimeFilter();
@@ -148,15 +109,13 @@ public class TrajectoryService {
         for (Location location : filtered) {
             processor.process(location);
         }
-        
 
         for (int i = originalEndpointsSize; i < Math.min(endpoints.size(), 2); i++) {
             TrajectoryEndpoint endpointEntity = new TrajectoryEndpoint();
             endpointEntity.setUser(user);
             endpointEntity.setLatitude(endpoints.get(i).getLatitude());
             endpointEntity.setLongitude(endpoints.get(i).getLongitude());
-            
-            System.out.println("SAVING ENDPOINT!!!!");
+
             trajEndpointRepo.save(endpointEntity);
         }
 
@@ -169,7 +128,25 @@ public class TrajectoryService {
         
         stateRepository.save(state);
         
-        //s3client.deleteObject("driverpete-storage", trajectoryKey);
+
     }
     
+    
+    private List<Location> downloadTrajectory(String key) throws IOException, ParseException {
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        S3Object object = s3client.getObject(
+                new GetObjectRequest(BUCKET_NAME, key));
+        InputStream objectData = object.getObjectContent();
+        List<Location> trajectory = TrajectoryReader.readTrajectory(objectData);
+        objectData.close();
+        return trajectory;
+    }
+    
+    private void uploadTrajectory(String key, byte[] binaryTrajectory) {
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        InputStream dataStream = new ByteArrayInputStream(binaryTrajectory);
+        ObjectMetadata meta = new ObjectMetadata();
+        meta.setContentLength(binaryTrajectory.length);
+        s3client.putObject(new PutObjectRequest(BUCKET_NAME, key, dataStream, meta));
+    }
 }

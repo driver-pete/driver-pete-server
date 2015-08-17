@@ -82,11 +82,10 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         byte[] trajectoryBytes = IOUtils.toByteArray(objectData);
         byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
         objectData.close();
-        
-        TypedInput in = new TypedByteArray("application/octet-stream", base64Bytes);
-               
+         
         String trajectoryName = "_my_trajectory";
-        this.server().compressed(trajectoryName, in);
+        this.server().compressed(trajectoryName,
+                new TypedByteArray("application/octet-stream", base64Bytes));
         
         List<TrajectoryEndpoint> endpoints = this.server().trajectoryEndpoints();
         
@@ -100,6 +99,5 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
        
         assertThat(data.get(669).getLatitude(), equalTo(endpoints.get(1).getLatitude()));
         assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1).getLongitude()));
-        
     }
 }

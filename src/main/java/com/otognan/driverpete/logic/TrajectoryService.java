@@ -33,6 +33,7 @@ import com.otognan.driverpete.logic.filtering.StationaryPointsFilter;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilter;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilterChain;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
+import com.otognan.driverpete.logic.filtering.TrajectoryFilteringService;
 import com.otognan.driverpete.logic.filtering.VelocityOutliersFilter;
 import com.otognan.driverpete.security.User;
 
@@ -48,6 +49,9 @@ public class TrajectoryService {
     
     @Autowired
     TrajectoryEndpointStateRepository stateRepository;
+    
+    @Autowired
+    TrajectoryFilteringService filteringService;
     
     @Autowired
     AWSCredentials awsCredentials;
@@ -86,11 +90,6 @@ public class TrajectoryService {
         
         //download trajectory
         List<Location> trajectory = this.downloadTrajectory(trajectoryKey);
-        
-        // create filters
-        DuplicateTimeFilter duplicateTime = new DuplicateTimeFilter();
-        StationaryPointsFilter stationaryPoint = new StationaryPointsFilter();
-        VelocityOutliersFilter velocityOutlier = new VelocityOutliersFilter(85.);
 
         List<Location> endpoints = new ArrayList<Location>();
         for (TrajectoryEndpoint endpoint : trajectoryEndpointsEntities) {
@@ -105,17 +104,10 @@ public class TrajectoryService {
         // get user state for endpoints and put state into filters
         EndpointProcessorState state = stateRepository.findOne(user.getId());
         if (state != null) {
-            velocityOutlier.setOutliersCounter(state.getVelocityOutliersCounter());
             processor.setPreviousPoint(state.getProcessorPreviousPoint());
         }
-        
-        // extract endpoints
-        TrajectoryFilter chain[] = {duplicateTime,
-                stationaryPoint,
-                velocityOutlier};
-        
-        List<Location> filtered = TrajectoryFilterUtils.apply(trajectory,
-                new TrajectoryFilterChain(chain));
+                
+        List<Location> filtered = filteringService.filterTrajectory(user, trajectory);
         // get endpoitns
         for (Location location : filtered) {
             processor.process(location);
@@ -134,12 +126,9 @@ public class TrajectoryService {
             state = new EndpointProcessorState();
             state.setUserId(user.getId());
         }
-        state.setVelocityOutliersCounter(velocityOutlier.getOutliersCounter());
         state.setProcessorPreviousPoint(processor.getPreviousPoint());
         
         stateRepository.save(state);
-        
-
     }
     
     

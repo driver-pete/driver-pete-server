@@ -17,8 +17,6 @@ public class EndpointProcessorState {
     @Id
     private Long userId;
     
-    private int velocityOutliersCounter;
-    
     private Location processorPreviousPoint;
 
     public Location getProcessorPreviousPoint() {
@@ -36,14 +34,5 @@ public class EndpointProcessorState {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-
-    public int getVelocityOutliersCounter() {
-        return velocityOutliersCounter;
-    }
-
-    public void setVelocityOutliersCounter(int velocityOutliersCounter) {
-        this.velocityOutliersCounter = velocityOutliersCounter;
-    }
-    
 
 }

@@ -23,6 +23,8 @@ public class TrajectoryEndpoint {
     
     private String label;
     
+    private String address;
+
     @ManyToOne
     private User user;
     
@@ -66,4 +68,11 @@ public class TrajectoryEndpoint {
         this.user = user;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }

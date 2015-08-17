@@ -1,7 +1,9 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.filtering;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.otognan.driverpete.logic.Location;
 
 public class TrajectoryFilterUtils {
     static public List<Location> apply(List<Location> data, TrajectoryFilter filter) {

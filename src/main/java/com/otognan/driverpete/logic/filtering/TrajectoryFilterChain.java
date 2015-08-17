@@ -1,4 +1,6 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.filtering;
+
+import com.otognan.driverpete.logic.Location;
 
 
 public class TrajectoryFilterChain implements TrajectoryFilter{

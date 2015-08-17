@@ -1,4 +1,4 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.endpoints;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

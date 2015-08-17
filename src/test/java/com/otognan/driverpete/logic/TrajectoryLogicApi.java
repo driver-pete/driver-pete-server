@@ -3,6 +3,8 @@ package com.otognan.driverpete.logic;
 
 import java.util.List;
 
+import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
+
 import retrofit.client.Response;
 import retrofit.http.Body;
 import retrofit.http.GET;

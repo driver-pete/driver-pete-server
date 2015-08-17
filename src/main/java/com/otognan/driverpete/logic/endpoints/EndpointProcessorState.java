@@ -1,4 +1,4 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.endpoints;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.otognan.driverpete.logic.Location;
 import com.otognan.driverpete.security.User;
 
 

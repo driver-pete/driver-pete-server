@@ -1,7 +1,9 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.routes;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.otognan.driverpete.logic.Location;
 
 public class RoutesFinder {
     

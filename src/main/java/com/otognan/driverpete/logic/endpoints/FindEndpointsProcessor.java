@@ -1,7 +1,9 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.endpoints;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.otognan.driverpete.logic.Location;
 
 public class FindEndpointsProcessor {
     private double stationaryThreshold;

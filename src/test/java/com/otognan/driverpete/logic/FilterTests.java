@@ -24,6 +24,11 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.otognan.driverpete.BaseStatelesSecurityITTest;
+import com.otognan.driverpete.logic.filtering.DuplicateTimeFilter;
+import com.otognan.driverpete.logic.filtering.StationaryPointsFilter;
+import com.otognan.driverpete.logic.filtering.TrajectoryFilter;
+import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
+import com.otognan.driverpete.logic.filtering.VelocityOutliersFilter;
 
 
 public class FilterTests extends BaseStatelesSecurityITTest{

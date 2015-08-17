@@ -25,6 +25,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.otognan.driverpete.BaseStatelesSecurityITTest;
+import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
+import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
 
 
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {

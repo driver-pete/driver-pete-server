@@ -23,6 +23,17 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.otognan.driverpete.logic.endpoints.EndpointProcessorState;
+import com.otognan.driverpete.logic.endpoints.FindEndpointsProcessor;
+import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
+import com.otognan.driverpete.logic.endpoints.TrajectoryEndpointRepository;
+import com.otognan.driverpete.logic.endpoints.TrajectoryEndpointStateRepository;
+import com.otognan.driverpete.logic.filtering.DuplicateTimeFilter;
+import com.otognan.driverpete.logic.filtering.StationaryPointsFilter;
+import com.otognan.driverpete.logic.filtering.TrajectoryFilter;
+import com.otognan.driverpete.logic.filtering.TrajectoryFilterChain;
+import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
+import com.otognan.driverpete.logic.filtering.VelocityOutliersFilter;
 import com.otognan.driverpete.security.User;
 
 

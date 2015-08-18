@@ -37,9 +37,13 @@ public class TrajectoryEndpointsService {
         List<TrajectoryEndpoint> trajectoryEndpointsEntities = trajEndpointRepo.findByUser(user);
         
         List<Location> endpoints = endpointsEntitiesToLocation(trajectoryEndpointsEntities);
-        if (endpoints.size() >= 2) {
-            System.out.println("More than 2 endpoints is not supported");
+        if (endpoints.size() == 2) {
+            System.out.println("Found 2 endpoints in the database.");
             return endpoints;
+        }
+        
+        if (endpoints.size() > 2) {
+            throw new Exception("More than 2 endpoints is not supported");
         }
          
         int originalEndpointsSize = endpoints.size();
@@ -49,7 +53,7 @@ public class TrajectoryEndpointsService {
         EndpointProcessorState state = stateRepository.findOne(user.getId());
         if (state != null) {
             processor.setPreviousPoint(state.getProcessorPreviousPoint());
-            throw new Exception("STATE");
+            //throw new Exception("STATE");
         }
                 
         // get endpoitns
@@ -88,6 +92,15 @@ public class TrajectoryEndpointsService {
             locations.add(location);
         }
         return locations;
+    }
+    
+    public void resetState(User user) {
+        stateRepository.delete(user.getId());
+    }
+    
+    public void deleteAllEndpoints(User user) {
+        List<TrajectoryEndpoint> trajectoryEndpointsEntities = trajEndpointRepo.findByUser(user);
+        trajEndpointRepo.delete(trajectoryEndpointsEntities);
     }
     
 }

@@ -35,4 +35,10 @@ public class RoutesController {
         }
         return stringRoutes;
     }
+    
+    @RequestMapping(value = "/api/trajectory/routes/all", method = RequestMethod.DELETE)
+    public void deleteAllRoutes(Principal principal) {
+        User user = (User)((Authentication)principal).getPrincipal();
+        this.routesService.deleteAllRoutes(user);
+    }
 }

@@ -8,6 +8,7 @@ import com.otognan.driverpete.security.User;
 
 public interface RoutesRepository extends JpaRepository<Route, Long> {
     
+    List<Route> findByUser(User user);
     List<Route> findByUserAndDirectionAtoB(User user, boolean directionAtoB); 
 
 }

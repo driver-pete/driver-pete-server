@@ -39,4 +39,15 @@ public class TrajectoryController {
         trajectoryService.processBinaryTrajectory(user, label, payload);
     }
 
+    @RequestMapping(value = "/api/trajectory/endpoints/all", method = RequestMethod.DELETE)
+    public void deleteAllEndpoints(Principal principal) {  
+        User user = (User)((Authentication)principal).getPrincipal(); 
+        trajectoryService.deleteAllEndpoints(user);
+    }
+    
+    @RequestMapping(value = "/api/trajectory/state", method = RequestMethod.DELETE)
+    public void resetProcessorState(Principal principal) {  
+        User user = (User)((Authentication)principal).getPrincipal(); 
+        trajectoryService.resetProcessorsState(user);
+    }
 }

@@ -92,7 +92,6 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
 //    }
     
     
-    //@Rollback(true)
     @Test
     public void findEndpoints() throws Exception {
         byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
@@ -116,11 +115,13 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1).getLongitude()));
     }
     
-    //@Rollback(true)
     @Test
     public void findRoutes() throws Exception {
         
         System.out.println("________________________________________________");
+        
+        this.server().resetProcessorState();
+        this.server().deleteAllEndpoints();
         
         byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
         byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
@@ -146,8 +147,8 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
             routesBtoA.add(route);
         }
         
-        System.out.println(routesAtoB.size());
-        System.out.println(routesBtoA.size());
+        assertThat(routesAtoB.size(), equalTo(6));
+        assertThat(routesBtoA.size(), equalTo(6));
         
         List<Location> data = TrajectoryReader.readTrajectory(new ByteArrayInputStream(trajectoryBytes));
         data = TrajectoryFilterUtils.filterGPSData(data);

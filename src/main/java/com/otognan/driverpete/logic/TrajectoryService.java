@@ -1,16 +1,18 @@
 package com.otognan.driverpete.logic;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
 import com.otognan.driverpete.logic.endpoints.TrajectoryEndpointsService;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilteringService;
 import com.otognan.driverpete.logic.routes.RoutesService;
@@ -21,7 +23,6 @@ import com.otognan.driverpete.security.User;
 @Transactional
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class TrajectoryService {
-    static private final String BUCKET_NAME = "driverpete-storage";
     
     @Autowired
     private TrajectoryDownloadService downloadService;
@@ -35,10 +36,6 @@ public class TrajectoryService {
     @Autowired
     private RoutesService routesService;
 
-    
-    @Autowired
-    private AWSCredentials awsCredentials;
-
     @Transactional
     public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) throws Exception {
         System.out.println("Starting to process trajectory.");
@@ -46,8 +43,7 @@ public class TrajectoryService {
         downloadService.uploadBinaryTrajectory(keyName, binaryTrajectory);
 
         String toProcessKey = user.getUsername() + "/unprocessed/" + label;
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        s3client.copyObject(BUCKET_NAME, keyName, BUCKET_NAME, toProcessKey);
+        downloadService.copyTrajectory(keyName, toProcessKey);
         
         //download trajectory
         System.out.println("Download trajectory copy..");
@@ -63,8 +59,20 @@ public class TrajectoryService {
             routesService.findRoutes(user, trajectory, endpoints);
         }
         
-        s3client.deleteObject(BUCKET_NAME, toProcessKey);
-        
-        System.out.println("Going to find routes..");
-    }    
+        downloadService.deleteTrajectory(toProcessKey);
+    }
+    
+    @Transactional
+    public void resetProcessorsState(User user) {
+        filteringService.resetState(user);
+        endpointsService.resetState(user);
+        routesService.resetState(user);
+    }
+    
+    @Transactional
+    public void deleteAllEndpoints(User user) {
+        endpointsService.deleteAllEndpoints(user);
+        routesService.deleteAllRoutes(user);
+    }
+    
 }

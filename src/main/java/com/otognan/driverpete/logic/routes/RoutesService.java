@@ -57,7 +57,7 @@ public class RoutesService {
                 finder.setCurrentRoute(currentRoute);
             }
             
-            throw new Exception("STATE ROUTES");
+            //throw new Exception("STATE ROUTES");
         }
         
         
@@ -76,6 +76,7 @@ public class RoutesService {
         if (currentRoute.size() > 0) {
             String keyToUpload = user.getUsername() + "/routes_state/current_route";
             downloadService.uploadTrajectory(keyToUpload, currentRoute);
+            state.setCurrentRouteKey(keyToUpload);
         }
         
         stateRepository.save(state);
@@ -125,5 +126,24 @@ public class RoutesService {
     
     private String nextS3Id() {
         return new BigInteger(130, random).toString(32);
+    }
+    
+    public void resetState(User user) {
+        RoutesState state = stateRepository.findOne(user.getId());
+        if (state != null) {
+            String currentRouteKey = state.getCurrentRouteKey();
+            if (currentRouteKey != null) {
+                downloadService.deleteTrajectory(currentRouteKey);
+            }
+            stateRepository.delete(state);
+        }
+    }
+    
+    public void deleteAllRoutes(User user) {
+        List<Route> routes = this.routesRepository.findByUser(user);
+        for(Route route: routes) {
+            downloadService.deleteTrajectory(route.getRouteKey());
+        }
+        this.routesRepository.delete(routes);
     }
 }

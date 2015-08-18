@@ -54,4 +54,14 @@ public class TrajectoryDownloadService {
         byte[] binaryTrajectory = TrajectoryReader.writeTrajectory(trajectory);
         uploadBinaryTrajectory(key, binaryTrajectory);
     }
+    
+    public void deleteTrajectory(String key) {
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        s3client.deleteObject(BUCKET_NAME, key);
+    }
+    
+    public void copyTrajectory(String fromKey, String toKey) {
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        s3client.copyObject(BUCKET_NAME, fromKey, BUCKET_NAME, toKey);
+    }
 }

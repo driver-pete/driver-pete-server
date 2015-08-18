@@ -52,4 +52,8 @@ public class TrajectoryFilteringService {
         return filtered;
     }
     
+    public void resetState(User user) {
+        stateRepository.delete(user.getId());
+    }
+    
 }

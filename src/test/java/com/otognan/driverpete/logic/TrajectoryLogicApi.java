@@ -7,6 +7,7 @@ import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
 
 import retrofit.client.Response;
 import retrofit.http.Body;
+import retrofit.http.DELETE;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Query;
@@ -24,5 +25,14 @@ public interface TrajectoryLogicApi {
     
     @GET("/api/trajectory/routes")
     public List<String> routes(@Query("isAtoB") boolean isAtoB);
+    
+    @DELETE("/api/trajectory/state")
+    public Response resetProcessorState();
+    
+    @DELETE("/api/trajectory/endpoints/all")
+    public Response deleteAllEndpoints();
+    
+    @DELETE("/api/trajectory/routes/all")
+    public Response deleteAllRoutes();
 }
     

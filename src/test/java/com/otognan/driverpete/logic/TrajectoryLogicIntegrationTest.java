@@ -33,7 +33,10 @@ import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     
     @Autowired
-    AWSCredentials awsCredentials;
+    private AWSCredentials awsCredentials;
+    
+    @Autowired
+    private TrajectoryDownloadService downloadService;
     
     private TrajectoryLogicApi server() throws Exception {
         String token = this.getTestToken();
@@ -86,13 +89,8 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     
     @Test
     public void findEndpoints() throws Exception {
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        S3Object object = s3client.getObject(
-                new GetObjectRequest("driverpete-storage", "_testing/testing_merged_1"));
-        InputStream objectData = object.getObjectContent();  
-        byte[] trajectoryBytes = IOUtils.toByteArray(objectData);
+        byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
         byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
-        objectData.close();
          
         String trajectoryName = "_my_trajectory";
         this.server().compressed(trajectoryName,

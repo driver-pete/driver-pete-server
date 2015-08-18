@@ -46,8 +46,9 @@ public class RoutesService {
         RoutesFinder finder = new RoutesFinder(endpoints);
         
         RoutesState state = stateRepository.findOne(user.getId());
+        
+        System.out.println("Routes state: " + state);
         if (state != null) {
-            
             finder.setFromEndpointIndex(state.getFromEndpointIndex());
             
             String currentRouteKey = state.getCurrentRouteKey();

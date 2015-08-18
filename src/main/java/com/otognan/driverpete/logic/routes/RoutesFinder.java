@@ -95,4 +95,21 @@ public class RoutesFinder {
     public List<List<Location>> getBtoARoutes() {
         return this.BtoARoutes;
     }
+    
+    // state getters and setters
+    public List<Location> getCurrentRoute() {
+        return currentRoute;
+    }
+
+    public void setCurrentRoute(List<Location> currentRoute) {
+        this.currentRoute = currentRoute;
+    }
+
+    public int getFromEndpointIndex() {
+        return fromEndpointIndex;
+    }
+
+    public void setFromEndpointIndex(int fromEndpointIndex) {
+        this.fromEndpointIndex = fromEndpointIndex;
+    }
 }

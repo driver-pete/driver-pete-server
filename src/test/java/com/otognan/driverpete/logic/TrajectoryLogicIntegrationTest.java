@@ -34,7 +34,7 @@ import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
 
 
 //@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true) 
-//@Transactional
+@Transactional
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     
     @Autowired
@@ -92,7 +92,7 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
 //    }
     
     
-//    @Rollback(true)
+    //@Rollback(true)
     @Test
     public void findEndpoints() throws Exception {
         byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
@@ -116,9 +116,12 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1).getLongitude()));
     }
     
-//    @Rollback(true)
+    //@Rollback(true)
     @Test
     public void findRoutes() throws Exception {
+        
+        System.out.println("________________________________________________");
+        
         byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
         byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
          

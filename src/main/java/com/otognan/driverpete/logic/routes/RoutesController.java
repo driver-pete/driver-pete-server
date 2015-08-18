@@ -4,6 +4,7 @@ package com.otognan.driverpete.logic.routes;
 import java.io.IOException;
 import java.security.Principal;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
@@ -24,12 +25,14 @@ public class RoutesController {
     private RoutesService routesService;
     
     @RequestMapping(value = "/api/trajectory/routes", method = RequestMethod.GET)
-    public List<byte[]> routes(Principal principal, @RequestParam("isAtoB") boolean isAtoB) throws IOException, ParseException {
+    public List<String> routes(Principal principal, @RequestParam("isAtoB") boolean isAtoB) throws IOException, ParseException {
         User user = (User)((Authentication)principal).getPrincipal();
         List<byte[]> binaryRoutes = this.routesService.getBinaryRoutes(user, isAtoB);
-        for (int i = 0; i < binaryRoutes.size(); i++) {
-            binaryRoutes.set(i, Base64.encodeBase64(binaryRoutes.get(i)));
+        List<String> stringRoutes = new ArrayList<String>();
+        for (byte[] binRoute: binaryRoutes) {
+            
+            stringRoutes.add(new String(Base64.encodeBase64(binRoute)));
         }
-        return binaryRoutes;
+        return stringRoutes;
     }
 }

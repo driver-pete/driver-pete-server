@@ -1,5 +1,8 @@
 package com.otognan.driverpete.logic.routes;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +66,17 @@ public class RoutesService {
         
         this.saveRoutes(user, finder.getAtoBRoutes(), true);
         this.saveRoutes(user, finder.getBtoARoutes(), false);
+    }
+    
+    public List<byte[]> getBinaryRoutes(User user, boolean isAtoB) throws IOException, ParseException {
+        List<Route> routes = this.routesRepository.findByUserAndDirectionAtoB(user, isAtoB);
+        List<byte[]> binaryRoutes = new ArrayList<byte[]>();
+        for(Route route: routes) {
+            String key = route.getRouteKey();
+            byte[] binTrajectory = this.downloadService.downloadBinaryTrajectory(key);
+            binaryRoutes.add(binTrajectory);
+        }
+        return binaryRoutes;
     }
 
     

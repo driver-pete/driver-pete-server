@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,7 +96,11 @@ public class TrajectoryEndpointsService {
     }
     
     public void resetState(User user) {
-        stateRepository.delete(user.getId());
+        try {
+            stateRepository.delete(user.getId());
+        } catch (EmptyResultDataAccessException ex) {
+            //
+        }
     }
     
     public void deleteAllEndpoints(User user) {

@@ -49,33 +49,4 @@ public class DatabaseConfiguration {
             throw new RuntimeException(e);
         }
     }
-    
-//    @Bean
-//    public PlatformTransactionManager transactionManager() {
-//        return new JpaTransactionManager();
-//    }
-//    
-    
-//    @Bean 
-//    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-//        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-//        //em.setPersistenceXmlLocation("classpath*:META-INF/persistence.xml");
-//        //em.setPersistenceUnitName("hibernatePersistenceUnit");
-//        em.setDataSource(dataSource());
-//        
-//        HibernateJpaVendorAdapter vendor = new HibernateJpaVendorAdapter();
-//        vendor.setShowSql(false);
-//        em.setJpaVendorAdapter(vendor);
-//        
-//        return em;
-//    }
-    
-    // Declare a transaction manager
-//    @Bean 
-//    public JpaTransactionManager transactionManager(DataSource ds) {
-//        JpaTransactionManager transactionManager = new JpaTransactionManager();
-//        transactionManager.setDataSource(ds);
-//        //transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
-//        return transactionManager;
-//    }
 }

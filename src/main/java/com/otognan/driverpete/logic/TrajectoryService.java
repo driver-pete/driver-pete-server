@@ -1,9 +1,5 @@
 package com.otognan.driverpete.logic;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 import com.otognan.driverpete.logic.endpoints.TrajectoryEndpointsService;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilteringService;
 import com.otognan.driverpete.logic.routes.RoutesService;
@@ -47,7 +39,7 @@ public class TrajectoryService {
     @Autowired
     private AWSCredentials awsCredentials;
 
-    //@Transactional
+    @Transactional
     public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) throws Exception {
         System.out.println("Starting to process trajectory.");
         String keyName = user.getUsername() + "/" + label;

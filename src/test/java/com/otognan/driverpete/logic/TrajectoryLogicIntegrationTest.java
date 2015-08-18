@@ -12,6 +12,9 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import retrofit.RetrofitError;
 import retrofit.mime.TypedByteArray;
@@ -30,6 +33,8 @@ import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
 
 
+//@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true) 
+//@Transactional
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     
     @Autowired
@@ -85,31 +90,33 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
 //        
 //        assertThat(inputStr, equalTo(outputStr));
 //    }
-//    
-//    
-//    @Test
-//    public void findEndpoints() throws Exception {
-//        byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
-//        byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
-//         
-//        String trajectoryName = "_my_trajectory";
-//        this.server().compressed(trajectoryName,
-//                new TypedByteArray("application/octet-stream", base64Bytes));
-//        
-//        List<TrajectoryEndpoint> endpoints = this.server().trajectoryEndpoints();
-//        
-//        assertThat(endpoints.size(), equalTo(2));
-//        
-//        List<Location> data = TrajectoryReader.readTrajectory(new ByteArrayInputStream(trajectoryBytes));
-//        data = TrajectoryFilterUtils.filterGPSData(data);
-//                
-//        assertThat(data.get(478).getLatitude(), equalTo(endpoints.get(0).getLatitude()));
-//        assertThat(data.get(478).getLongitude(), equalTo(endpoints.get(0).getLongitude()));
-//       
-//        assertThat(data.get(669).getLatitude(), equalTo(endpoints.get(1).getLatitude()));
-//        assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1).getLongitude()));
-//    }
     
+    
+//    @Rollback(true)
+    @Test
+    public void findEndpoints() throws Exception {
+        byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
+        byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
+         
+        String trajectoryName = "_my_trajectory";
+        this.server().compressed(trajectoryName,
+                new TypedByteArray("application/octet-stream", base64Bytes));
+        
+        List<TrajectoryEndpoint> endpoints = this.server().trajectoryEndpoints();
+        
+        assertThat(endpoints.size(), equalTo(2));
+        
+        List<Location> data = TrajectoryReader.readTrajectory(new ByteArrayInputStream(trajectoryBytes));
+        data = TrajectoryFilterUtils.filterGPSData(data);
+                
+        assertThat(data.get(478).getLatitude(), equalTo(endpoints.get(0).getLatitude()));
+        assertThat(data.get(478).getLongitude(), equalTo(endpoints.get(0).getLongitude()));
+       
+        assertThat(data.get(669).getLatitude(), equalTo(endpoints.get(1).getLatitude()));
+        assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1).getLongitude()));
+    }
+    
+//    @Rollback(true)
     @Test
     public void findRoutes() throws Exception {
         byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
@@ -119,8 +126,53 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         this.server().compressed(trajectoryName,
                 new TypedByteArray("application/octet-stream", base64Bytes));
         
+        List<String> binRoutesAtoB = this.server().routes(true);
+        List<String> binRoutesBtoA = this.server().routes(false);
+        
+        List<List<Location>> routesAtoB = new ArrayList<List<Location>>();
+        for (String binRoute: binRoutesAtoB) {
+            List<Location> route = TrajectoryReader.readTrajectory(
+                    new ByteArrayInputStream(Base64.decodeBase64(binRoute.getBytes())));
+            routesAtoB.add(route);
+        }
+        
+        List<List<Location>> routesBtoA = new ArrayList<List<Location>>();
+        for (String binRoute: binRoutesBtoA) {
+            List<Location> route = TrajectoryReader.readTrajectory(
+                    new ByteArrayInputStream(Base64.decodeBase64(binRoute.getBytes())));
+            routesBtoA.add(route);
+        }
+        
+        System.out.println(routesAtoB.size());
+        System.out.println(routesBtoA.size());
+        
         List<Location> data = TrajectoryReader.readTrajectory(new ByteArrayInputStream(trajectoryBytes));
         data = TrajectoryFilterUtils.filterGPSData(data);
+        
+        int[][] AtoBPathsIndices = extractPathsIndices(data, routesAtoB);
+        int[][] BtoAPathsIndices = extractPathsIndices(data, routesBtoA);
+
+        int expectedAtoBIndices[][] = {
+                {485, 659}, {944, 1121}, {1358, 1552}, {2210, 2403}, {2624, 2900}, {4379, 4509}};
+
+        int expectedBtoAIndices[][] = {
+                {124, 456}, {678, 893}, {1137, 1317}, {1570, 1784}, {2423, 2596}, {3957, 4158}};
+        assertThat(AtoBPathsIndices, equalTo(expectedAtoBIndices));
+        assertThat(BtoAPathsIndices, equalTo(expectedBtoAIndices));
+    }
+    
+    private int[] pathIndices(List<Location> data, List<Location> path) {
+        int indices[] = {data.indexOf(path.get(0)),
+                data.indexOf(path.get(path.size()-1))};
+        return indices;
+    }
+    
+    private int[][] extractPathsIndices(List<Location> data, List<List<Location>> paths) {
+        int result[][] = new int[paths.size()][2];
+        for (int i = 0; i < paths.size(); i++) {
+            result[i] = this.pathIndices(data, paths.get(i));
+        }
+        return result;
     }
     
 }

@@ -22,7 +22,7 @@ public class TrajectoryEndpointsService {
     private TrajectoryEndpointRepository trajEndpointRepo;
     
     @Autowired
-    TrajectoryEndpointStateRepository stateRepository;
+    private TrajectoryEndpointStateRepository stateRepository;
     
     public void updateTrajectoryEndpoint(TrajectoryEndpoint trajectoryEndpoint) {
         trajEndpointRepo.save(trajectoryEndpoint);

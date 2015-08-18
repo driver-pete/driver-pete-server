@@ -1,9 +1,5 @@
 package com.otognan.driverpete.logic.routes;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +8,8 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 import com.otognan.driverpete.logic.Location;
-import com.otognan.driverpete.logic.TrajectoryReader;
+import com.otognan.driverpete.logic.TrajectoryDownloadService;
 import com.otognan.driverpete.security.User;
 
 
@@ -30,12 +19,13 @@ import com.otognan.driverpete.security.User;
 public class RoutesService {
     
     @Autowired
-    RoutesStateRepository stateRepository;
-    
-    static private final String BUCKET_NAME = "driverpete-storage";
+    private RoutesStateRepository stateRepository;
     
     @Autowired
-    AWSCredentials awsCredentials;
+    private RoutesRepository routesRepository;
+    
+    @Autowired
+    private TrajectoryDownloadService downloadService;
     
     public void findRoutes(User user, List<Location> trajectory, List<Location> endpoints) throws Exception {
                
@@ -49,7 +39,7 @@ public class RoutesService {
             
             String currentRouteKey = state.getCurrentRouteKey();
             if (currentRouteKey != null) {
-                List<Location> currentRoute = this.downloadTrajectory(currentRouteKey);
+                List<Location> currentRoute = downloadService.downloadTrajectory(currentRouteKey);
                 finder.setCurrentRoute(currentRoute);
             }
         }
@@ -66,30 +56,32 @@ public class RoutesService {
         List<Location> currentRoute = finder.getCurrentRoute();
         if (currentRoute.size() > 0) {
             String keyToUpload = user.getUsername() + "/routes_state/current_route";
-            this.uploadTrajectory(keyToUpload, currentRoute);
+            downloadService.uploadTrajectory(keyToUpload, currentRoute);
         }
         
         stateRepository.save(state);
+        
+        this.saveRoutes(user, finder.getAtoBRoutes(), true);
+        this.saveRoutes(user, finder.getBtoARoutes(), false);
+    }
 
-    }
     
-    private List<Location> downloadTrajectory(String key) throws IOException, ParseException {
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        S3Object object = s3client.getObject(
-                new GetObjectRequest(BUCKET_NAME, key));
-        InputStream objectData = object.getObjectContent();
-        List<Location> trajectory = TrajectoryReader.readTrajectory(objectData);
-        objectData.close();
-        return trajectory;
+    private void saveRoutes(User user, List<List<Location>> routes, boolean isAtoB) throws Exception {
+        for (List<Location> trajectoryRoute : routes) {        
+            String key = user.getUsername();
+            if (isAtoB) {
+                key += "/routes/a_to_b";
+            } else {
+                key += "/routes/b_to_a";
+            }
+            downloadService.uploadTrajectory(key, trajectoryRoute);
+            
+            Route routeEntity = new Route();
+            routeEntity.setUser(user);
+            routeEntity.setDirectionAtoB(isAtoB);
+            routeEntity.setRouteKey(key);
+            
+            routesRepository.save(routeEntity);
+        }
     }
-    
-    private void uploadTrajectory(String key, List<Location> trajectory) throws Exception {
-        byte[] binaryTrajectory = TrajectoryReader.writeTrajectory(trajectory);
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        InputStream dataStream = new ByteArrayInputStream(binaryTrajectory);
-        ObjectMetadata meta = new ObjectMetadata();
-        meta.setContentLength(binaryTrajectory.length);
-        s3client.putObject(new PutObjectRequest(BUCKET_NAME, key, dataStream, meta));
-    }
-    
 }

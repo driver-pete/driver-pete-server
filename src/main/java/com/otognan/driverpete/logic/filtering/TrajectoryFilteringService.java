@@ -18,7 +18,7 @@ import com.otognan.driverpete.security.User;
 public class TrajectoryFilteringService {
     
     @Autowired
-    FilteringStateRepository stateRepository;
+    private FilteringStateRepository stateRepository;
     
     public List<Location> filterTrajectory(User user, List<Location> trajectory) {
                

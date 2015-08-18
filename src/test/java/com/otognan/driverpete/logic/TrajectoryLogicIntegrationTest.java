@@ -43,52 +43,75 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         return this.serverAPI(token, TrajectoryLogicApi.class);
     }
 
-    @Test
-    public void determineDataLength() throws Exception {
-        String inputStr = "   &*()!@#$$%^&())((     ()/n/ndfgsd)(*)(@''''???";
-        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes("UTF-8"));
-        TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
-        
-        int dataLenth = this.server().compressedLength(in);
-        
-        assertThat(dataLenth, equalTo(inputStr.length()));
-    }
+//    @Test
+//    public void determineDataLength() throws Exception {
+//        String inputStr = "   &*()!@#$$%^&())((     ()/n/ndfgsd)(*)(@''''???";
+//        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes("UTF-8"));
+//        TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
+//        
+//        int dataLenth = this.server().compressedLength(in);
+//        
+//        assertThat(dataLenth, equalTo(inputStr.length()));
+//    }
+//    
+//    @Test
+//    public void uploadToS3SucceedsEvenIfBadData() throws Exception {
+//        /*
+//         * Its important during development that even bad data in case of bug in the client
+//         * goes through, because otherwise it would be lost.
+//         */
+//        String inputStr = "Hello. I'm not a trajectory";
+//        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes());
+//        TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
+//        
+//        String trajectoryName = "_my_test_bad_trajectory";
+//        try {
+//            this.server().compressed(trajectoryName, in);
+//        } catch (RetrofitError ex) {
+//            // expected error
+//        }
+//        
+//        // Check that file is there
+//        AmazonS3 s3Client = new AmazonS3Client(awsCredentials);  
+//        
+//        String uploadedKey = "TestMike/" + trajectoryName;
+//        
+//        S3Object object = s3Client.getObject(new GetObjectRequest("driverpete-storage", uploadedKey));
+//        
+//        String outputStr = IOUtils.toString(new InputStreamReader(
+//                object.getObjectContent()));
+//        
+//        s3Client.deleteObject("driverpete-storage", uploadedKey);
+//        
+//        assertThat(inputStr, equalTo(outputStr));
+//    }
+//    
+//    
+//    @Test
+//    public void findEndpoints() throws Exception {
+//        byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
+//        byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
+//         
+//        String trajectoryName = "_my_trajectory";
+//        this.server().compressed(trajectoryName,
+//                new TypedByteArray("application/octet-stream", base64Bytes));
+//        
+//        List<TrajectoryEndpoint> endpoints = this.server().trajectoryEndpoints();
+//        
+//        assertThat(endpoints.size(), equalTo(2));
+//        
+//        List<Location> data = TrajectoryReader.readTrajectory(new ByteArrayInputStream(trajectoryBytes));
+//        data = TrajectoryFilterUtils.filterGPSData(data);
+//                
+//        assertThat(data.get(478).getLatitude(), equalTo(endpoints.get(0).getLatitude()));
+//        assertThat(data.get(478).getLongitude(), equalTo(endpoints.get(0).getLongitude()));
+//       
+//        assertThat(data.get(669).getLatitude(), equalTo(endpoints.get(1).getLatitude()));
+//        assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1).getLongitude()));
+//    }
     
     @Test
-    public void uploadToS3SucceedsEvenIfBadData() throws Exception {
-        /*
-         * Its important during development that even bad data in case of bug in the client
-         * goes through, because otherwise it would be lost.
-         */
-        String inputStr = "Hello. I'm not a trajectory";
-        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes());
-        TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
-        
-        String trajectoryName = "_my_test_bad_trajectory";
-        try {
-            this.server().compressed(trajectoryName, in);
-        } catch (RetrofitError ex) {
-            // expected error
-        }
-        
-        // Check that file is there
-        AmazonS3 s3Client = new AmazonS3Client(awsCredentials);  
-        
-        String uploadedKey = "TestMike/" + trajectoryName;
-        
-        S3Object object = s3Client.getObject(new GetObjectRequest("driverpete-storage", uploadedKey));
-        
-        String outputStr = IOUtils.toString(new InputStreamReader(
-                object.getObjectContent()));
-        
-        s3Client.deleteObject("driverpete-storage", uploadedKey);
-        
-        assertThat(inputStr, equalTo(outputStr));
-    }
-    
-    
-    @Test
-    public void findEndpoints() throws Exception {
+    public void findRoutes() throws Exception {
         byte[] trajectoryBytes = downloadService.downloadBinaryTrajectory("_testing/testing_merged_1");
         byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
          
@@ -96,17 +119,8 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         this.server().compressed(trajectoryName,
                 new TypedByteArray("application/octet-stream", base64Bytes));
         
-        List<TrajectoryEndpoint> endpoints = this.server().trajectoryEndpoints();
-        
-        assertThat(endpoints.size(), equalTo(2));
-        
         List<Location> data = TrajectoryReader.readTrajectory(new ByteArrayInputStream(trajectoryBytes));
         data = TrajectoryFilterUtils.filterGPSData(data);
-                
-        assertThat(data.get(478).getLatitude(), equalTo(endpoints.get(0).getLatitude()));
-        assertThat(data.get(478).getLongitude(), equalTo(endpoints.get(0).getLongitude()));
-       
-        assertThat(data.get(669).getLatitude(), equalTo(endpoints.get(1).getLatitude()));
-        assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1).getLongitude()));
     }
+    
 }

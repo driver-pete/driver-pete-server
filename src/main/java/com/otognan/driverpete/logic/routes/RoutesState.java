@@ -37,5 +37,12 @@ public class RoutesState {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public String toString() {
+        return "RoutesState [userId=" + userId + ", fromEndpointIndex="
+                + fromEndpointIndex + ", currentRouteKey=" + currentRouteKey
+                + "]";
     }    
 }

@@ -21,14 +21,6 @@ public class TrajectoryController {
     @Autowired
     private TrajectoryService trajectoryService;
     
-    // Method for testing of binary upload
-    @RequestMapping(value = "/api/trajectory/compressed_length",
-            method = RequestMethod.POST)
-    public int compressedLength(HttpEntity<byte[]> requestEntity) throws Exception {  
-        byte[] payload = Base64.decodeBase64(requestEntity.getBody());
-        return payload.length;
-    }
-    
     @RequestMapping(value = "/api/trajectory/compressed",
             method = RequestMethod.POST)
     public void uploadTrajectory(Principal principal,

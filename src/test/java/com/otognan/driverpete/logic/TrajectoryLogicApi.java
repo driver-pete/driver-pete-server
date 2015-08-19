@@ -14,8 +14,6 @@ import retrofit.http.Query;
 import retrofit.mime.TypedInput;
 
 public interface TrajectoryLogicApi {
-    @POST("/api/trajectory/compressed_length")
-    public int compressedLength(@Body TypedInput body);
  
     @POST("/api/trajectory/compressed")
     public Response compressed(@Query("label") String label, @Body TypedInput body);

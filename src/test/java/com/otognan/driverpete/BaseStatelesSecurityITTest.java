@@ -50,6 +50,7 @@ public abstract class BaseStatelesSecurityITTest {
     //private URL base;
     protected RestTemplate template;
     protected String basePath;
+    protected String testToken;
     
     @Before
     public void setUp() throws Exception {
@@ -76,9 +77,14 @@ public abstract class BaseStatelesSecurityITTest {
                 });
         
         this.basePath = "https://localhost:8443/";
+        
+        if (this.testToken == null) {
+            this.testToken = getTokenWithFacebook("testmike_kyyttal_fergiewitz@tfbnw.net",
+                    "QWERTYUIOP1234567890");
+        }
     }
     
-    private String getTokenWithFacebook(String facebookUsername, String facebookPassword) throws Exception {
+    protected String getTokenWithFacebook(String facebookUsername, String facebookPassword) throws Exception {
         ResponseEntity<String> response = template.getForEntity(
                 this.basePath + "auth/facebook", String.class);
         assertTrue(response.getStatusCode().is3xxRedirection());
@@ -115,8 +121,7 @@ public abstract class BaseStatelesSecurityITTest {
     }
     
     protected String getTestToken() throws Exception {
-        return this.getTokenWithFacebook("testmike_kyyttal_fergiewitz@tfbnw.net",
-                "QWERTYUIOP1234567890");
+        return this.testToken;
     }
     
     protected <T> ResponseEntity<T> requestWithToken(String token, String path, Class<T> returnType) {

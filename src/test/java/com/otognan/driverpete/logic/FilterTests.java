@@ -42,26 +42,28 @@ public class FilterTests extends BaseStatelesSecurityITTest{
     public void setUp() throws Exception {
         super.setUp();
         
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        S3Object object = s3client.getObject(
-                new GetObjectRequest("driverpete-storage", "_testing/testing_raw_0"));
-        InputStream objectData = object.getObjectContent();
-        
-        List<Location> data = TrajectoryReader.readTrajectory(objectData);
-        objectData.close();
-
-        //add few time duplicates
-        data.set(54, data.get(53));
-        data.set(100, data.get(99));
+        if (this.testData == null) {
+            AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+            S3Object object = s3client.getObject(
+                    new GetObjectRequest("driverpete-storage", "_testing/testing_raw_0"));
+            InputStream objectData = object.getObjectContent();
             
-        // add few distance duplicates
-        data.set(23, new Location(data.get(23).getTime(),
-            data.get(22).getLatitude(), data.get(22).getLongitude()));
-        data.set(40, new Location(data.get(40).getTime(),
-                data.get(39).getLatitude(), data.get(39).getLongitude()));
-        data.set(60, new Location(data.get(60).getTime(),
-                data.get(59).getLatitude(), data.get(59).getLongitude()));
-        this.testData = data;
+            List<Location> data = TrajectoryReader.readTrajectory(objectData);
+            objectData.close();
+    
+            //add few time duplicates
+            data.set(54, data.get(53));
+            data.set(100, data.get(99));
+                
+            // add few distance duplicates
+            data.set(23, new Location(data.get(23).getTime(),
+                data.get(22).getLatitude(), data.get(22).getLongitude()));
+            data.set(40, new Location(data.get(40).getTime(),
+                    data.get(39).getLatitude(), data.get(39).getLongitude()));
+            data.set(60, new Location(data.get(60).getTime(),
+                    data.get(59).getLatitude(), data.get(59).getLongitude()));
+            this.testData = data;
+        }
     }
     
     @Test

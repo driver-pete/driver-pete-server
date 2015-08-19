@@ -33,14 +33,16 @@ public class FindRoutesTest extends BaseStatelesSecurityITTest{
     public void setUp() throws Exception {
         super.setUp();
         
-        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
-        S3Object object = s3client.getObject(
-                new GetObjectRequest("driverpete-storage", "_testing/testing_merged_1"));
-        InputStream objectData = object.getObjectContent();
-        
-        List<Location> data = TrajectoryReader.readTrajectory(objectData);
-        objectData.close();
-        this.testData = TrajectoryFilterUtils.filterGPSData(data);
+        if (this.testData == null) {
+            AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+            S3Object object = s3client.getObject(
+                    new GetObjectRequest("driverpete-storage", "_testing/testing_merged_1"));
+            InputStream objectData = object.getObjectContent();
+            
+            List<Location> data = TrajectoryReader.readTrajectory(objectData);
+            objectData.close();
+            this.testData = TrajectoryFilterUtils.filterGPSData(data);
+        }
     }
     
     @Test

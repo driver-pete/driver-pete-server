@@ -50,8 +50,7 @@ public class RoutesService {
                 List<Location> currentRoute = downloadService.downloadTrajectory(currentRouteKey);
                 finder.setCurrentRoute(currentRoute);
             }
-            
-            //throw new Exception("STATE ROUTES");
+
         }
         
         

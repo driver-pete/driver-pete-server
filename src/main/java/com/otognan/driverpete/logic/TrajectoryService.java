@@ -1,18 +1,13 @@
 package com.otognan.driverpete.logic;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
 import com.otognan.driverpete.logic.endpoints.TrajectoryEndpointsService;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilteringService;
 import com.otognan.driverpete.logic.routes.RoutesService;
@@ -36,7 +31,6 @@ public class TrajectoryService {
     @Autowired
     private RoutesService routesService;
 
-    @Transactional
     public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) throws Exception {
         System.out.println("Starting to process trajectory.");
         String keyName = user.getUsername() + "/" + label;
@@ -62,14 +56,12 @@ public class TrajectoryService {
         downloadService.deleteTrajectory(toProcessKey);
     }
     
-    @Transactional
     public void resetProcessorsState(User user) {
         filteringService.resetState(user);
         endpointsService.resetState(user);
         routesService.resetState(user);
     }
     
-    @Transactional
     public void deleteAllEndpoints(User user) {
         endpointsService.deleteAllEndpoints(user);
         routesService.deleteAllRoutes(user);

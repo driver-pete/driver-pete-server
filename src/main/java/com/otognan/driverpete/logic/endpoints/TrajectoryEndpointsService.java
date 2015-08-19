@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.otognan.driverpete.logic.Location;
+import com.otognan.driverpete.logic.filtering.FilteringState;
 import com.otognan.driverpete.security.User;
 
 
@@ -96,10 +97,9 @@ public class TrajectoryEndpointsService {
     }
     
     public void resetState(User user) {
-        try {
-            stateRepository.delete(user.getId());
-        } catch (EmptyResultDataAccessException ex) {
-            //
+        EndpointProcessorState state = stateRepository.findOne(user.getId());
+        if (state != null) {
+            stateRepository.delete(state);
         }
     }
     

@@ -54,10 +54,9 @@ public class TrajectoryFilteringService {
     }
     
     public void resetState(User user) {
-        try {
-            stateRepository.delete(user.getId());
-        } catch (EmptyResultDataAccessException ex) {
-            //
+        FilteringState state = stateRepository.findOne(user.getId());
+        if (state != null) {
+            stateRepository.delete(state);
         }
     }
     

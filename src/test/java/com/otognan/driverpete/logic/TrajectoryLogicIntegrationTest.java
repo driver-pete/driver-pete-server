@@ -30,7 +30,6 @@ import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
 
 
-@TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true) 
 @Transactional
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     
@@ -43,17 +42,6 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     private TrajectoryLogicApi server() throws Exception {
         String token = this.getTestToken();
         return this.serverAPI(token, TrajectoryLogicApi.class);
-    }
-
-    @Test
-    public void determineDataLength() throws Exception {
-        String inputStr = "   &*()!@#$$%^&())((     ()/n/ndfgsd)(*)(@''''???";
-        byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes("UTF-8"));
-        TypedInput in = new TypedByteArray("application/octet-stream", encodedBytes);
-        
-        int dataLenth = this.server().compressedLength(in);
-        
-        assertThat(dataLenth, equalTo(inputStr.length()));
     }
     
     @Test

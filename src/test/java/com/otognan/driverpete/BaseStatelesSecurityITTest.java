@@ -115,7 +115,8 @@ public abstract class BaseStatelesSecurityITTest {
     }
     
     protected String getTestToken() throws Exception {
-        return this.getTokenWithFacebook("testmike_tmnhopm_mcdonaldson@tfbnw.net", "1234");
+        return this.getTokenWithFacebook("testmike_kyyttal_fergiewitz@tfbnw.net",
+                "QWERTYUIOP1234567890");
     }
     
     protected <T> ResponseEntity<T> requestWithToken(String token, String path, Class<T> returnType) {

@@ -1,23 +1,27 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.endpoints;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.otognan.driverpete.logic.Location;
 
 public class FindEndpointsProcessor {
     private double stationaryThreshold;
     private double endpointsDistance;
     
-    private List<Location> endpoints = new ArrayList<Location>();
+    private List<Location> endpoints;
     
     private Location previousPoint = null;
 
-    public FindEndpointsProcessor(double stationaryThreshold, double endpointsDistance) {
+    public FindEndpointsProcessor(List<Location> endpoints,
+            double stationaryThreshold, double endpointsDistance) {
+        this.endpoints = endpoints;
         this.stationaryThreshold = stationaryThreshold;
         this.endpointsDistance = endpointsDistance;
     }
     
-    public FindEndpointsProcessor() {
-        this((60*60)*3, 1000.);
+    public FindEndpointsProcessor(List<Location> endpoints) {
+        this(endpoints, (60*60)*3, 1000.);
     }
     
     public void process(Location point) {
@@ -33,10 +37,6 @@ public class FindEndpointsProcessor {
         }
         this.previousPoint = point;
     }
-
-    public List<Location> getEndpoints() {
-        return this.endpoints;
-    }
     
     private boolean endpointExists(Location point) {
         for (Location l: this.endpoints) {
@@ -46,12 +46,21 @@ public class FindEndpointsProcessor {
         }
         return false;
     }
+        
+    public Location getPreviousPoint() {
+        return previousPoint;
+    }
+
+    public void setPreviousPoint(Location previousPoint) {
+        this.previousPoint = previousPoint;
+    }
     
     static public List<Location> findEndpoints(List<Location> data) {
-        FindEndpointsProcessor processor = new FindEndpointsProcessor();
+        List<Location> endpointsContainer = new ArrayList<Location>();
+        FindEndpointsProcessor processor = new FindEndpointsProcessor(endpointsContainer);
         for (Location location : data) {
             processor.process(location);
         }
-        return processor.getEndpoints();
+        return endpointsContainer;
     }
 }

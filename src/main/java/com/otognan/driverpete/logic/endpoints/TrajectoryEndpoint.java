@@ -1,4 +1,4 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.endpoints;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,12 +17,26 @@ public class TrajectoryEndpoint {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     
-    private float latitude;
+    private double latitude;
     
-    private float longitude;
+    private double longitude;
     
+    private int number;
+
+    private String label;
+    
+    private String address;
+
     @ManyToOne
     private User user;
+    
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
     
     public Long getId() {
         return id;
@@ -32,19 +46,19 @@ public class TrajectoryEndpoint {
         this.id = id;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
@@ -56,6 +70,19 @@ public class TrajectoryEndpoint {
         this.user = user;
     }
 
+    public String getAddress() {
+        return address;
+    }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    
+    public int getNumber() {
+        return number;
+    }
 
+    public void setNumber(int number) {
+        this.number = number;
+    }
 }

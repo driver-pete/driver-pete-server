@@ -1,17 +1,21 @@
-package com.otognan.driverpete.logic;
+package com.otognan.driverpete.logic.routes;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.otognan.driverpete.logic.Location;
 
 public class RoutesFinder {
     
     private List<List<Location>> AtoBRoutes = new ArrayList<List<Location>>();
     private List<List<Location>> BtoARoutes = new ArrayList<List<Location>>();
-    private List<Location> currentRoute = new ArrayList<Location>();
     private List<Location> endpoints;
     private double distanceToStartRoute;
     private double continuityThreshold;
-    private Integer fromEndpointIndex;
+    
+    // Current state
+    private List<Location> currentRoute = new ArrayList<Location>();
+    private int fromEndpointIndex = -1;
     
     public RoutesFinder(List<Location> endpoints, double distanceToStartRoute, double continuityThreshold) throws Exception
     {
@@ -21,40 +25,40 @@ public class RoutesFinder {
         this.endpoints = endpoints;
         this.distanceToStartRoute = distanceToStartRoute;
         this.continuityThreshold = continuityThreshold;
-        this.fromEndpointIndex = null;
+        this.fromEndpointIndex = -1;
     }
     
     public RoutesFinder(List<Location> endpoints) throws Exception {
         this(endpoints, 200, 60*10);
     }
     
-    private void startRoute(Location location, Integer endpointIndex) {
+    private void startRoute(Location location, int endpointIndex) {
         this.fromEndpointIndex = endpointIndex;
         this.currentRoute.add(location);
     }
     
-    private Integer toEndpointIndex() {
+    private int toEndpointIndex() {
         return (this.fromEndpointIndex + 1) % 2;
     }
     
     private void stopRoute() {
         this.currentRoute = new ArrayList<Location>();
-        this.fromEndpointIndex = null;
+        this.fromEndpointIndex = -1;
     }
     
-    private Integer closestEndpointIndex(Location point) {
+    private int closestEndpointIndex(Location point) {
         for (int i = 0; i < this.endpoints.size(); i++) {
             if (Location.distance(point, this.endpoints.get(i)) < this.distanceToStartRoute) {
                 return i;
             }
         }
-        return null;
+        return -1;
     }
     
     public void process(Location point) {
-        if (this.fromEndpointIndex == null) {
-            Integer index = this.closestEndpointIndex(point);
-            if (index != null) {
+        if (this.fromEndpointIndex == -1) {
+            int index = this.closestEndpointIndex(point);
+            if (index != -1) {
                 this.startRoute(point, index);
             }
             return;
@@ -67,7 +71,7 @@ public class RoutesFinder {
             }
             
             this.currentRoute.add(point);
-            Integer index = this.closestEndpointIndex(point);
+            int index = this.closestEndpointIndex(point);
             if (index == this.fromEndpointIndex) {
                 this.stopRoute();
                 this.startRoute(point, index);
@@ -90,5 +94,22 @@ public class RoutesFinder {
     
     public List<List<Location>> getBtoARoutes() {
         return this.BtoARoutes;
+    }
+    
+    // state getters and setters
+    public List<Location> getCurrentRoute() {
+        return currentRoute;
+    }
+
+    public void setCurrentRoute(List<Location> currentRoute) {
+        this.currentRoute = currentRoute;
+    }
+
+    public int getFromEndpointIndex() {
+        return fromEndpointIndex;
+    }
+
+    public void setFromEndpointIndex(int fromEndpointIndex) {
+        this.fromEndpointIndex = fromEndpointIndex;
     }
 }

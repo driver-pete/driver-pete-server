@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class Location {
     
     // the UTC time of this location, in milliseconds since January 1, 1970.
@@ -17,11 +20,19 @@ public class Location {
     private double longitude;
     
     public static double msToMph = 2.23694;
-   
+    
     public Location(long time, double latitude, double longitude) {
         this.time = time;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+    
+    public Location(double latitude, double longitude) {
+        this(0, latitude, longitude);
+    }
+    
+    public Location() {
+        this(0, 0., 0.);
     }
 
     public long getTime() {

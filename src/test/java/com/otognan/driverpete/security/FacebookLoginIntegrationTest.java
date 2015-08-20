@@ -30,7 +30,8 @@ public class FacebookLoginIntegrationTest extends BaseStatelesSecurityITTest {
    
     @Test
     public void loginFlow() throws Exception {
-        String token = this.getTestToken();
+        String token = this.getTokenWithFacebook("testmike_kyyttal_fergiewitz@tfbnw.net",
+                "QWERTYUIOP1234567890");
         User user = this.requestWithToken(token,
              this.basePath + "api/user/current", User.class).getBody();
         assertThat(user.getUsername(), equalTo("TestMike"));

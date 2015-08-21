@@ -51,9 +51,8 @@ public class TrajectoryService {
         String toProcessKey = user.getUsername() + "/unprocessed/" + label;
         downloadService.copyTrajectory(keyName, toProcessKey);
         if (endpoints.size() >= 2) {
-           this.findRoutesInUnprocessedData(user, endpoints, trajectory);
+           this.findRoutesInUnprocessedData(user, endpoints);
         }
-        downloadService.deleteTrajectory(toProcessKey);
     }
     
     public void resetProcessorsState(User user) {
@@ -67,9 +66,15 @@ public class TrajectoryService {
         routesService.deleteAllRoutes(user);
     }
     
-    private void findRoutesInUnprocessedData(User user, List<Location> endpoints, List<Location> trajectory) throws Exception {
+    private void findRoutesInUnprocessedData(User user, List<Location> endpoints) throws Exception {
         System.out.println("Going to find routes..");
-        routesService.findRoutes(user, trajectory, endpoints);
+        List<String> trajectoryKeys = downloadService.getTimedTrajectoryList(user.getUsername() + "/unprocessed");
+        for (String key : trajectoryKeys) {
+            System.out.println("Going to find routes in " + key);
+            List<Location> trajectory = downloadService.downloadTrajectory(key);
+            routesService.findRoutes(user, trajectory, endpoints);
+            downloadService.deleteTrajectory(key);
+        }
     }
     
 }

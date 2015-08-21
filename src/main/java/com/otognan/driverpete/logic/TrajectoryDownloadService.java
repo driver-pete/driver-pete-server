@@ -4,7 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +17,11 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 
 @Service
@@ -62,5 +67,22 @@ public class TrajectoryDownloadService {
     public void copyTrajectory(String fromKey, String toKey) {
         AmazonS3 s3client = new AmazonS3Client(awsCredentials);
         s3client.copyObject(BUCKET_NAME, fromKey, BUCKET_NAME, toKey);
+    }
+    
+    public List<String> getTimedTrajectoryList(String directoryKey) throws ParseException {
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        ObjectListing objectListing = s3client.listObjects(BUCKET_NAME, directoryKey);
+        SortedMap<Long, String> trajectoryMap = new TreeMap<Long, String>();
+        for (S3ObjectSummary objectSummary: objectListing.getObjectSummaries()) {
+            String name = objectSummary.getKey();
+            String dateStr = name.substring(name.lastIndexOf("/")+1, name.length());
+            trajectoryMap.put(Location.dateFromString(dateStr).getTime(), name);
+        }
+        
+        List<String> result = new ArrayList<String>();
+        for (SortedMap.Entry<Long, String> k: trajectoryMap.entrySet()) {
+            result.add(k.getValue()); 
+        }
+        return result;
     }
 }

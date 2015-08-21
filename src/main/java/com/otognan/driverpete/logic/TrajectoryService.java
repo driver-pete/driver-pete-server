@@ -35,13 +35,10 @@ public class TrajectoryService {
         System.out.println("Starting to process trajectory " + label);
         String keyName = user.getUsername() + "/" + label;
         downloadService.uploadBinaryTrajectory(keyName, binaryTrajectory);
-
-        String toProcessKey = user.getUsername() + "/unprocessed/" + label;
-        downloadService.copyTrajectory(keyName, toProcessKey);
         
         //download trajectory
         System.out.println("Download trajectory copy..");
-        List<Location> originalTrajectory = downloadService.downloadTrajectory(toProcessKey);
+        List<Location> originalTrajectory = TrajectoryReader.readTrajectory(binaryTrajectory);
         System.out.println("Filtering trajectory of size " + originalTrajectory.size());
         List<Location> trajectory = filteringService.filterTrajectory(user, originalTrajectory);
         System.out.println("Filtered out " + (originalTrajectory.size() - trajectory.size()) + " point");
@@ -50,11 +47,12 @@ public class TrajectoryService {
         List<Location> endpoints = endpointsService.findEndpoints(user, trajectory);
         
         System.out.println(endpoints.size() + " endpoints found.");
-        if (endpoints.size() >= 2) {
-            System.out.println("Going to find routes..");
-            routesService.findRoutes(user, trajectory, endpoints);
-        }
         
+        String toProcessKey = user.getUsername() + "/unprocessed/" + label;
+        downloadService.copyTrajectory(keyName, toProcessKey);
+        if (endpoints.size() >= 2) {
+           this.findRoutesInUnprocessedData(user, endpoints, trajectory);
+        }
         downloadService.deleteTrajectory(toProcessKey);
     }
     
@@ -67,6 +65,11 @@ public class TrajectoryService {
     public void deleteAllEndpoints(User user) {
         endpointsService.deleteAllEndpoints(user);
         routesService.deleteAllRoutes(user);
+    }
+    
+    private void findRoutesInUnprocessedData(User user, List<Location> endpoints, List<Location> trajectory) throws Exception {
+        System.out.println("Going to find routes..");
+        routesService.findRoutes(user, trajectory, endpoints);
     }
     
 }

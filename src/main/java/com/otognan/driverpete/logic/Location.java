@@ -52,21 +52,33 @@ public class Location {
     // So far we ignore timezones and force timezone to be Pacific Daylight Time
     public static Location fromString(String str) throws ParseException {
         String[] parts = str.split(" ");
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss_z");
-        Date date = formatter.parse(parts[0]);
+        Date date = Location.dateFromString(parts[0]);
         return new Location(date.getTime(), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
+    }
+    
+    public static Date dateFromString(String dateString) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss_z");
+        return formatter.parse(dateString);
     }
     
     // returns string to put into trajectory serialization file
     public String toSerializationString(String timezone) throws ParseException {
+        return String.format("%s %f %f",
+                Location.dateToString(this.getTime(), timezone),
+                this.getLatitude(),
+                this.getLongitude());
+    }
+    
+    public static String dateToString(long epoch, String timezone) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss_z", Locale.US);
         if (timezone != null) {
             sdf.setTimeZone(TimeZone.getTimeZone(timezone));
         }
-        return String.format("%s %f %f",
-                sdf.format(this.getTime()),
-                this.getLatitude(),
-                this.getLongitude());
+        return sdf.format(epoch);
+    }
+    
+    public static String dateToString(long epoch) {
+        return Location.dateToString(epoch, null);
     }
 
     public String toSerializationString() throws Exception {

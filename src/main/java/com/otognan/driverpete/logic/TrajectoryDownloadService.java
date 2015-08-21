@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -84,5 +86,13 @@ public class TrajectoryDownloadService {
             result.add(k.getValue()); 
         }
         return result;
+    }
+    
+    public void deleteFolder(String directoryPrefix) {
+        AmazonS3 s3client = new AmazonS3Client(awsCredentials);
+        ObjectListing objectListing = s3client.listObjects(BUCKET_NAME, directoryPrefix);
+        for (S3ObjectSummary objectSummary: objectListing.getObjectSummaries()) {
+            s3client.deleteObject(BUCKET_NAME, objectSummary.getKey());
+        }
     }
 }

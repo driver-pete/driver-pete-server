@@ -130,6 +130,8 @@ public class RoutesService {
             }
             stateRepository.delete(state);
         }
+        // if database is dropped, we still want to delete the folder
+        downloadService.deleteFolder(user.getUsername()+"/routes_state");
     }
     
     public void deleteAllRoutes(User user) {
@@ -138,5 +140,7 @@ public class RoutesService {
             downloadService.deleteTrajectory(route.getRouteKey());
         }
         this.routesRepository.delete(routes);
+        // if database is dropped, we still want to delete the folder
+        downloadService.deleteFolder(user.getUsername()+"/routes");
     }
 }

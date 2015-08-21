@@ -1,6 +1,7 @@
 package com.otognan.driverpete.logic;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +25,10 @@ public class TrajectoryReader {
             locations.add(Location.fromString(line));
         }
         return locations;
+    }
+    
+    public static List<Location> readTrajectory(byte[] trajectoryBytes) throws IOException, ParseException {
+        return TrajectoryReader.readTrajectory(new ByteArrayInputStream(trajectoryBytes));
     }
     
     public static byte[] writeTrajectory(List<Location> locations) throws Exception {

@@ -17,7 +17,6 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.transfer.TransferManager;
 
 
 @Service
@@ -39,7 +38,7 @@ public class TrajectoryDownloadService {
         
     public List<Location> downloadTrajectory(String key) throws IOException, ParseException {
         byte[] binaryTrajectory = downloadBinaryTrajectory(key);
-        return TrajectoryReader.readTrajectory(new ByteArrayInputStream(binaryTrajectory));
+        return TrajectoryReader.readTrajectory(binaryTrajectory);
     }
     
     public void uploadBinaryTrajectory(String key, byte[] binaryTrajectory) throws Exception {

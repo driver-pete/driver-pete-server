@@ -32,5 +32,8 @@ public interface TrajectoryLogicApi {
     
     @DELETE("/api/trajectory/routes/all")
     public Response deleteAllRoutes();
+    
+    @DELETE("/api/data/all")
+    public Response deleteAllUserData();
 }
     

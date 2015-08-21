@@ -42,4 +42,10 @@ public class TrajectoryController {
         User user = (User)((Authentication)principal).getPrincipal(); 
         trajectoryService.resetProcessorsState(user);
     }
+    
+    @RequestMapping(value = "/api/data/all", method = RequestMethod.DELETE)
+    public void deleteAllUserData(Principal principal) {  
+        User user = (User)((Authentication)principal).getPrincipal(); 
+        trajectoryService.deleteAllUserData(user);
+    }
 }

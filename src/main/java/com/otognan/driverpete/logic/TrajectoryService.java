@@ -32,7 +32,7 @@ public class TrajectoryService {
     private RoutesService routesService;
 
     public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) throws Exception {
-        System.out.println("Starting to process trajectory.");
+        System.out.println("Starting to process trajectory " + label);
         String keyName = user.getUsername() + "/" + label;
         downloadService.uploadBinaryTrajectory(keyName, binaryTrajectory);
 
@@ -42,7 +42,9 @@ public class TrajectoryService {
         //download trajectory
         System.out.println("Download trajectory copy..");
         List<Location> originalTrajectory = downloadService.downloadTrajectory(toProcessKey);
+        System.out.println("Filtering trajectory of size " + originalTrajectory.size());
         List<Location> trajectory = filteringService.filterTrajectory(user, originalTrajectory);
+        System.out.println("Filtered out " + (originalTrajectory.size() - trajectory.size()) + " point");
         
         System.out.println("Going to find enpoints..");
         List<Location> endpoints = endpointsService.findEndpoints(user, trajectory);

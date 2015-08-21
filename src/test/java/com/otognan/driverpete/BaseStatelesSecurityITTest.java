@@ -142,7 +142,6 @@ public abstract class BaseStatelesSecurityITTest {
 
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(this.basePath)
-                .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setClient(new ApacheClient(UnsafeHttpsClient.createUnsafeClient()))
                 .setRequestInterceptor(requestInterceptor)
                 .build();

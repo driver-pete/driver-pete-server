@@ -1,5 +1,6 @@
 package com.otognan.driverpete.logic;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,23 +34,11 @@ public class TrajectoryService {
 
     public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) throws Exception {
         System.out.println("Starting to process trajectory " + label);
-        String keyName = user.getUsername() + "/" + label;
+        String keyName = user.getUsername() + "/data/" + label;
         downloadService.uploadBinaryTrajectory(keyName, binaryTrajectory);
         
-        //download trajectory
-        System.out.println("Download trajectory copy..");
-        List<Location> originalTrajectory = TrajectoryReader.readTrajectory(binaryTrajectory);
-        System.out.println("Filtering trajectory of size " + originalTrajectory.size());
-        List<Location> trajectory = filteringService.filterTrajectory(user, originalTrajectory);
-        System.out.println("Filtered out " + (originalTrajectory.size() - trajectory.size()) + " point");
-        
-        System.out.println("Going to find enpoints..");
-        List<Location> endpoints = endpointsService.findEndpoints(user, trajectory);
-        
-        System.out.println(endpoints.size() + " endpoints found.");
-        
-        String toProcessKey = user.getUsername() + "/unprocessed/" + label;
-        downloadService.copyTrajectory(keyName, toProcessKey);
+        List<Location> endpoints = this.findEndpointsRoutine(user, keyName);
+      
         if (endpoints.size() >= 2) {
            this.findRoutesInUnprocessedData(user, endpoints);
         }
@@ -83,4 +72,42 @@ public class TrajectoryService {
         }
     }
     
+    public void deleteUnprocessedData(User user) {
+        downloadService.deleteFolder(user.getUsername() + "/unprocessed");
+    }
+    
+    public void reprocessAllData(User user) throws Exception {
+        this.deleteUnprocessedData(user);
+        System.out.println("Reprocessing all data. Going to find endpoints first.");
+        List<String> trajectoryKeys = downloadService.getTimedTrajectoryList(user.getUsername() + "/data");
+        List<Location> endpoints = new ArrayList<Location>();
+        for (String keyName : trajectoryKeys) {
+            endpoints = this.findEndpointsRoutine(user, keyName);
+        }
+        
+        if (endpoints.size() >= 2) {
+            this.findRoutesInUnprocessedData(user, endpoints);
+        }
+    }
+    
+    private List<Location> findEndpointsRoutine(User user, String keyName) throws Exception {
+        System.out.println("Download trajectory " + keyName);
+        byte[] binaryTrajectory = downloadService.downloadBinaryTrajectory(keyName);
+        String label = keyName.substring(keyName.lastIndexOf("/")+1, keyName.length());
+       
+        List<Location> originalTrajectory = TrajectoryReader.readTrajectory(binaryTrajectory);
+        System.out.println("Filtering trajectory of size " + originalTrajectory.size());
+        List<Location> trajectory = filteringService.filterTrajectory(user, originalTrajectory);
+        System.out.println("Filtered out " + (originalTrajectory.size() - trajectory.size()) + " point");
+        
+        System.out.println("Going to find enpoints..");
+        List<Location> endpoints = endpointsService.findEndpoints(user, trajectory);
+        
+        System.out.println(endpoints.size() + " endpoints found.");
+        
+        String toProcessKey = user.getUsername() + "/unprocessed/" + label;
+        downloadService.copyTrajectory(keyName, toProcessKey);
+        
+        return endpoints;
+    }
 }

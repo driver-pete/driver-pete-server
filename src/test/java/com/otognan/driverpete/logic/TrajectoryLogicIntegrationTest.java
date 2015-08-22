@@ -85,7 +85,7 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         // Check that file is there
         AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
 
-        String uploadedKey = "TestMike/" + trajectoryName;
+        String uploadedKey = "TestMike/data/" + trajectoryName;
 
         S3Object object = s3Client.getObject(new GetObjectRequest(
                 "driverpete-storage", uploadedKey));
@@ -240,39 +240,27 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
             Thread.sleep(1100);
         }
 
-        List<String> binRoutesAtoB = this.server().routes(true);
-        List<String> binRoutesBtoA = this.server().routes(false);
-
-        List<List<Location>> routesAtoB = new ArrayList<List<Location>>();
-        for (String binRoute : binRoutesAtoB) {
-            List<Location> route = TrajectoryReader.readTrajectory(Base64
-                    .decodeBase64(binRoute.getBytes()));
-            routesAtoB.add(route);
-        }
-
-        List<List<Location>> routesBtoA = new ArrayList<List<Location>>();
-        for (String binRoute : binRoutesBtoA) {
-            List<Location> route = TrajectoryReader.readTrajectory(Base64
-                    .decodeBase64(binRoute.getBytes()));
-            routesBtoA.add(route);
-        }
-
-        assertThat(routesAtoB.size(), equalTo(6));
-        assertThat(routesBtoA.size(), equalTo(6));
-
         List<Location> data = TrajectoryReader.readTrajectory(trajectoryBytes);
         data = TrajectoryFilterUtils.filterGPSData(data);
-
-        int[][] AtoBPathsIndices = extractPathsIndices(data, routesAtoB);
-        int[][] BtoAPathsIndices = extractPathsIndices(data, routesBtoA);
-
+        
         int expectedAtoBIndices[][] = { { 485, 659 }, { 944, 1121 },
                 { 1358, 1552 }, { 2210, 2403 }, { 2624, 2900 }, { 4379, 4509 } };
 
         int expectedBtoAIndices[][] = { { 124, 456 }, { 678, 893 },
                 { 1137, 1317 }, { 1570, 1784 }, { 2423, 2596 }, { 3957, 4158 } };
-        assertThat(AtoBPathsIndices, equalTo(expectedAtoBIndices));
-        assertThat(BtoAPathsIndices, equalTo(expectedBtoAIndices));
+        
+        checkRoute(data, true, 6, expectedAtoBIndices);
+        checkRoute(data, false, 6, expectedBtoAIndices);
+        
+        this.server().resetProcessorState();
+        this.server().deleteAllEndpoints();
+        this.server().deleteAllRoutes();
+        
+        // now check that reprocessing gives the same results
+        this.server().reprocessAllUserData();
+        
+        checkRoute(data, true, 6, expectedAtoBIndices);
+        checkRoute(data, false, 6, expectedBtoAIndices);
     }
 
     private int[] pathIndices(List<Location> data, List<Location> path) {
@@ -288,6 +276,23 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
             result[i] = this.pathIndices(data, paths.get(i));
         }
         return result;
+    }
+    
+    private void checkRoute(List<Location> data, boolean isAtoB, int expectedSize, int[][] expectedAtoBIndices) throws Exception {
+        List<String> binRoutes = this.server().routes(isAtoB);
+
+        List<List<Location>> routes= new ArrayList<List<Location>>();
+        for (String binRoute : binRoutes) {
+            List<Location> route = TrajectoryReader.readTrajectory(Base64
+                    .decodeBase64(binRoute.getBytes()));
+            routes.add(route);
+        }
+
+        assertThat(routes.size(), equalTo(expectedSize));
+
+        int[][] pathsIndices = extractPathsIndices(data, routes);
+
+        assertThat(pathsIndices, equalTo(expectedAtoBIndices));
     }
 
 }

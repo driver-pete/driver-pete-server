@@ -33,7 +33,10 @@ public interface TrajectoryLogicApi {
     @DELETE("/api/trajectory/routes/all")
     public Response deleteAllRoutes();
     
-    @DELETE("/api/data/all")
+    @DELETE("/api/trajectory/all")
     public Response deleteAllUserData();
+    
+    @POST("/api/trajectory/reprocess/all")
+    public Response reprocessAllUserData();
 }
     

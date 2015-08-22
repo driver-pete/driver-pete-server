@@ -55,7 +55,6 @@ public class TrajectoryEndpointsService {
         EndpointProcessorState state = stateRepository.findOne(user.getId());
         if (state != null) {
             processor.setPreviousPoint(state.getProcessorPreviousPoint());
-            //throw new Exception("STATE");
         }
                 
         // get endpoitns

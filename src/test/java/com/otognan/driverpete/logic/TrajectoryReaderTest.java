@@ -56,7 +56,7 @@ public class TrajectoryReaderTest extends BaseStatelesSecurityITTest{
         objectData.close();
         
         byte[] compressedBytes = TrajectoryReader.writeTrajectory(locations);
-        List<Location> locationsCopy = TrajectoryReader.readTrajectory(new ByteArrayInputStream(compressedBytes));
+        List<Location> locationsCopy = TrajectoryReader.readTrajectory(compressedBytes);
 
         Assert.assertThat(locationsCopy, 
                 IsIterableContainingInOrder.contains(locations.toArray()));

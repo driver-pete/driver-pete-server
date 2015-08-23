@@ -49,6 +49,12 @@ public class TrajectoryController {
         trajectoryService.deleteAllUserData(user);
     }
     
+    @RequestMapping(value = "/api/trajectory/processed", method = RequestMethod.DELETE)
+    public void deleteProcessedUserData(Principal principal) {  
+        User user = (User)((Authentication)principal).getPrincipal(); 
+        trajectoryService.deleteProcessedUserData(user);
+    }
+    
     @RequestMapping(value = "/api/trajectory/reprocess/all", method = RequestMethod.GET)
     public void reprocessAllUserData(Principal principal) throws Exception {  
         User user = (User)((Authentication)principal).getPrincipal(); 

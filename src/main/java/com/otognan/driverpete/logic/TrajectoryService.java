@@ -61,6 +61,12 @@ public class TrajectoryService {
         this.downloadService.deleteFolder(user.getUsername());
     }
     
+    public void deleteProcessedUserData(User user) {
+        this.resetProcessorsState(user);
+        this.deleteAllEndpoints(user);
+        this.deleteUnprocessedData(user);
+    }
+    
     private void findRoutesInUnprocessedData(User user, List<Location> endpoints) throws Exception {
         System.out.println("Going to find routes..");
         List<String> trajectoryKeys = downloadService.getTimedTrajectoryList(user.getUsername() + "/unprocessed");

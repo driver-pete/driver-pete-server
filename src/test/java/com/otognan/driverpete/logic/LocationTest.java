@@ -88,4 +88,11 @@ public class LocationTest {
         
         assertArrayEquals(ds, expectedds, 1e-5);
     }
+    
+    @Test
+    public void testGetAddress() throws Exception {
+        String locationString = "04-08-2015_14-35-50_PDT 32.936004 -117.235370";
+        Location l = Location.fromString(locationString);
+        assertEquals(l.getAddress(), "3611 Valley Centre Drive, San Diego, CA 92130, USA");
+    }
 }

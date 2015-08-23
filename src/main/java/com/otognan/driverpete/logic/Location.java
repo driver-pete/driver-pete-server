@@ -1,5 +1,7 @@
 package com.otognan.driverpete.logic;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -8,6 +10,16 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.persistence.Embeddable;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
 
 @Embeddable
 public class Location {
@@ -247,6 +259,54 @@ public class Location {
                 finalBearing *= 180.0 / Math.PI;
                 results[2] = finalBearing;
             }
+        }
+    }
+    
+    public String getAddress() {
+
+        HttpGet httpGet = new HttpGet(
+                "http://maps.google.com/maps/api/geocode/json?latlng="+this.getLatitude()+","+this.getLongitude()+"&sensor=false");
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpResponse response;
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try {
+            response = client.execute(httpGet);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+        
+        HttpEntity entity = response.getEntity();
+        InputStream stream;
+        try {
+            stream = entity.getContent();
+        } catch (IllegalStateException | IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+        
+        int b;
+        try {
+            while ((b = stream.read()) != -1) {
+                stringBuilder.append((char) b);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+
+        //return stringBuilder.toString();
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(stringBuilder.toString());
+            //Get JSON Array called "results" and then get the 0th complete object as JSON        
+            JSONObject location = jsonObject.getJSONArray("results").getJSONObject(0); 
+            // Get the value of the attribute whose name is "formatted_string"
+            return location.getString("formatted_address");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "";
         }
     }
 }

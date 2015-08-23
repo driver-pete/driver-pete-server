@@ -11,6 +11,7 @@ import com.otognan.driverpete.security.User;
 
 public interface TrajectoryEndpointRepository extends JpaRepository<TrajectoryEndpoint, Long> {
     List<TrajectoryEndpoint> findByUser(User user);
+    List<TrajectoryEndpoint> findByIdAndUser(Long id, User user);
 }
 
 

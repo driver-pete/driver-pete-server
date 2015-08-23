@@ -6,12 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.otognan.driverpete.logic.ForbiddenDataException;
 import com.otognan.driverpete.logic.Location;
-import com.otognan.driverpete.logic.filtering.FilteringState;
 import com.otognan.driverpete.security.User;
 
 
@@ -111,4 +110,12 @@ public class TrajectoryEndpointsService {
         trajEndpointRepo.delete(trajectoryEndpointsEntities);
     }
     
+    public void editEndpoint(User user, TrajectoryEndpoint endpoint) throws Exception {
+        List<TrajectoryEndpoint> existingEndpoints = trajEndpointRepo.findByIdAndUser(endpoint.getId(), user);
+        if (existingEndpoints.size() != 1) {
+            throw new ForbiddenDataException("Can not find trajectory with id for this user"); 
+        }
+        endpoint.setUser(user);
+        trajEndpointRepo.save(endpoint);
+    }
 }

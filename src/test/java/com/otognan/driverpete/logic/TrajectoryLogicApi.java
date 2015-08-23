@@ -21,6 +21,9 @@ public interface TrajectoryLogicApi {
     @GET("/api/trajectory/endpoints")
     public List<TrajectoryEndpoint> trajectoryEndpoints();
     
+    @POST("/api/trajectory/endpoints")
+    public Response editEndpoint(@Body TrajectoryEndpoint endpoint);
+    
     @GET("/api/trajectory/routes")
     public List<String> routes(@Query("isAtoB") boolean isAtoB);
     

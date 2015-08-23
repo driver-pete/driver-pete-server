@@ -14,6 +14,7 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -142,6 +143,7 @@ public abstract class BaseStatelesSecurityITTest {
 
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(this.basePath)
+                .setLogLevel(RestAdapter.LogLevel.NONE)
                 .setClient(new ApacheClient(UnsafeHttpsClient.createUnsafeClient()))
                 .setRequestInterceptor(requestInterceptor)
                 .build();

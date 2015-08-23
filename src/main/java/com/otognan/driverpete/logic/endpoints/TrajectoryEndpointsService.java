@@ -69,8 +69,12 @@ public class TrajectoryEndpointsService {
         for (int i = originalEndpointsSize; i < Math.min(endpoints.size(), 2); i++) {
             TrajectoryEndpoint endpointEntity = new TrajectoryEndpoint();
             endpointEntity.setUser(user);
-            endpointEntity.setLatitude(endpoints.get(i).getLatitude());
-            endpointEntity.setLongitude(endpoints.get(i).getLongitude());
+            Location location = endpoints.get(i);
+            endpointEntity.setLatitude(location.getLatitude());
+            endpointEntity.setLongitude(location.getLongitude());
+            if (i == 0) endpointEntity.setLabel("A");
+            if (i == 1) endpointEntity.setLabel("B"); 
+            endpointEntity.setAddress(location.getAddress());
 
             trajEndpointRepo.save(endpointEntity);
         }

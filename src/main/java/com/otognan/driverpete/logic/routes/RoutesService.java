@@ -135,6 +135,7 @@ public class RoutesService {
     }
     
     public void deleteAllRoutes(User user) {
+        this.resetState(user);
         List<Route> routes = this.routesRepository.findByUser(user);
         for(Route route: routes) {
             downloadService.deleteTrajectory(route.getRouteKey());

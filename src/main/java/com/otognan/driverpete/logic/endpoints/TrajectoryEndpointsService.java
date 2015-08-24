@@ -106,6 +106,7 @@ public class TrajectoryEndpointsService {
     }
     
     public void deleteAllEndpoints(User user) {
+        this.resetState(user);
         List<TrajectoryEndpoint> trajectoryEndpointsEntities = trajEndpointRepo.findByUser(user);
         trajEndpointRepo.delete(trajectoryEndpointsEntities);
     }

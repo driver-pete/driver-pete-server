@@ -4,6 +4,7 @@ package com.otognan.driverpete.logic;
 import java.util.List;
 
 import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
+import com.otognan.driverpete.logic.routes.Route;
 
 import retrofit.client.Response;
 import retrofit.http.Body;
@@ -25,7 +26,10 @@ public interface TrajectoryLogicApi {
     public Response editEndpoint(@Body TrajectoryEndpoint endpoint);
     
     @GET("/api/trajectory/routes")
-    public List<String> routes(@Query("isAtoB") boolean isAtoB);
+    public List<Route> routes(@Query("isAtoB") boolean isAtoB);
+    
+    @GET("/api/trajectory/routes/binary")
+    public Response binaryRoute(@Query("routeId") long routeId);
     
     @DELETE("/api/trajectory/state")
     public Response resetProcessorState();

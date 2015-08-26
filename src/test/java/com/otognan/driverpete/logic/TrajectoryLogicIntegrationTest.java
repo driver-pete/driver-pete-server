@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import retrofit.RetrofitError;
+import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
 import retrofit.mime.TypedInput;
 
@@ -30,6 +31,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.otognan.driverpete.BaseStatelesSecurityITTest;
 import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
+import com.otognan.driverpete.logic.routes.Route;
 
 @Transactional
 public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
@@ -143,22 +145,8 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         this.server().compressed(trajectoryName,
                 new TypedByteArray("application/octet-stream", base64Bytes));
 
-        List<String> binRoutesAtoB = this.server().routes(true);
-        List<String> binRoutesBtoA = this.server().routes(false);
-
-        List<List<Location>> routesAtoB = new ArrayList<List<Location>>();
-        for (String binRoute : binRoutesAtoB) {
-            List<Location> route = TrajectoryReader.readTrajectory(Base64
-                    .decodeBase64(binRoute.getBytes()));
-            routesAtoB.add(route);
-        }
-
-        List<List<Location>> routesBtoA = new ArrayList<List<Location>>();
-        for (String binRoute : binRoutesBtoA) {
-            List<Location> route = TrajectoryReader.readTrajectory(Base64
-                    .decodeBase64(binRoute.getBytes()));
-            routesBtoA.add(route);
-        }
+        List<List<Location>> routesAtoB = getAllRoutes(true);
+        List<List<Location>> routesBtoA = getAllRoutes(false);
 
         assertThat(routesAtoB.size(), equalTo(6));
         assertThat(routesBtoA.size(), equalTo(6));
@@ -286,14 +274,7 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     }
     
     private void checkRoute(List<Location> data, boolean isAtoB, int expectedSize, int[][] expectedAtoBIndices) throws Exception {
-        List<String> binRoutes = this.server().routes(isAtoB);
-
-        List<List<Location>> routes= new ArrayList<List<Location>>();
-        for (String binRoute : binRoutes) {
-            List<Location> route = TrajectoryReader.readTrajectory(Base64
-                    .decodeBase64(binRoute.getBytes()));
-            routes.add(route);
-        }
+        List<List<Location>> routes= getAllRoutes(isAtoB);
 
         assertThat(routes.size(), equalTo(expectedSize));
 
@@ -377,6 +358,17 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         assertThat(b.getLabel(), equalTo(expectedLabelB));
         assertThat(a.getAddress(), equalTo(expectedAddressA));
         assertThat(b.getAddress(), equalTo(expectedAddressB));
+    }
+    
+    private List<List<Location>> getAllRoutes(boolean isAtoB) throws Exception {
+        List<List<Location>> routes = new ArrayList<List<Location>>();
+        for (Route routeEntity : this.server().routes(isAtoB)) {
+            TypedByteArray body = (TypedByteArray)this.server().binaryRoute(routeEntity.getId()).getBody();
+            List<Location> route = TrajectoryReader.readTrajectory(Base64
+                    .decodeBase64(body.getBytes()));
+            routes.add(route);
+        }
+        return routes;
     }
     
 }

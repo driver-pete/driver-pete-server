@@ -23,17 +23,18 @@ public class RoutesController {
     
     @Autowired
     private RoutesService routesService;
-    
+        
     @RequestMapping(value = "/api/trajectory/routes", method = RequestMethod.GET)
-    public List<String> routes(Principal principal, @RequestParam("isAtoB") boolean isAtoB) throws IOException, ParseException {
+    public List<Route> routes(Principal principal, @RequestParam("isAtoB") boolean isAtoB) {
         User user = (User)((Authentication)principal).getPrincipal();
-        List<byte[]> binaryRoutes = this.routesService.getBinaryRoutes(user, isAtoB);
-        List<String> stringRoutes = new ArrayList<String>();
-        for (byte[] binRoute: binaryRoutes) {
-            
-            stringRoutes.add(new String(Base64.encodeBase64(binRoute)));
-        }
-        return stringRoutes;
+        return this.routesService.getRoutes(user, isAtoB);
+    }
+    
+    @RequestMapping(value = "/api/trajectory/routes/binary", method = RequestMethod.GET)
+    public String binaryRoute(Principal principal, @RequestParam("routeId") long routeId) throws IOException, ParseException {
+        User user = (User)((Authentication)principal).getPrincipal();
+        byte[] binRoute = this.routesService.getBinaryRoute(user, routeId);
+        return new String(Base64.encodeBase64(binRoute));
     }
     
     @RequestMapping(value = "/api/trajectory/routes/all", method = RequestMethod.DELETE)

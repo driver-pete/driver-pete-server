@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.otognan.driverpete.security.User;
 
 
@@ -26,6 +27,7 @@ public class TrajectoryEndpoint {
     private String address;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
     
     public String getLabel() {

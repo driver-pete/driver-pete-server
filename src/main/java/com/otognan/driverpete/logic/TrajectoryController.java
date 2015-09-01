@@ -56,8 +56,9 @@ public class TrajectoryController {
     }
     
     @RequestMapping(value = "/api/trajectory/reprocess/all", method = RequestMethod.GET)
-    public void reprocessAllUserData(Principal principal) throws Exception {  
+    public void reprocessAllUserData(Principal principal,
+            @RequestParam("reprocessRoutes") boolean reprocessRoutes) throws Exception {  
         User user = (User)((Authentication)principal).getPrincipal(); 
-        trajectoryService.reprocessAllData(user);
+        trajectoryService.reprocessAllData(user, reprocessRoutes);
     }
 }

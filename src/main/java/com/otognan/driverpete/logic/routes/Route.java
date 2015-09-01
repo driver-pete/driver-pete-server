@@ -18,7 +18,7 @@ public class Route {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     
-    //@JsonIgnore
+    @JsonIgnore
     private String routeKey;
     
     private boolean directionAtoB;
@@ -28,6 +28,7 @@ public class Route {
     private Long finishDate;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
 
     public Long getId() {

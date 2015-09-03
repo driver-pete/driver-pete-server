@@ -252,7 +252,7 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         this.server().deleteAllRoutes();
         
         // now check that reprocessing gives the same results
-        this.server().reprocessAllUserData();
+        this.server().reprocessAllUserData(true);
         
         checkRoute(data, true, 6, expectedAtoBIndices);
         checkRoute(data, false, 6, expectedBtoAIndices);

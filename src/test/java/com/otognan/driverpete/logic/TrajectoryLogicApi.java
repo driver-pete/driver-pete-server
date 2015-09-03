@@ -44,6 +44,6 @@ public interface TrajectoryLogicApi {
     public Response deleteAllUserData();
     
     @GET("/api/trajectory/reprocess/all")
-    public Response reprocessAllUserData();
+    public Response reprocessAllUserData(@Query("reprocessRoutes") boolean reprocessRoutes);
 }
     

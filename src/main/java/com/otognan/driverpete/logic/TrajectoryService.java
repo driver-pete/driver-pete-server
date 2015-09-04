@@ -61,6 +61,12 @@ public class TrajectoryService {
         this.downloadService.deleteFolder(user.getUsername());
     }
     
+    public void deleteProcessedUserData(User user) {
+        this.resetProcessorsState(user);
+        this.deleteAllEndpoints(user);
+        this.deleteUnprocessedData(user);
+    }
+    
     private void findRoutesInUnprocessedData(User user, List<Location> endpoints) throws Exception {
         System.out.println("Going to find routes..");
         List<String> trajectoryKeys = downloadService.getTimedTrajectoryList(user.getUsername() + "/unprocessed");
@@ -76,7 +82,7 @@ public class TrajectoryService {
         downloadService.deleteFolder(user.getUsername() + "/unprocessed");
     }
     
-    public void reprocessAllData(User user) throws Exception {
+    public void reprocessAllData(User user, boolean reprocessRoutes) throws Exception {
         this.deleteUnprocessedData(user);
         System.out.println("Reprocessing all data. Going to find endpoints first.");
         List<String> trajectoryKeys = downloadService.getTimedTrajectoryList(user.getUsername() + "/data");
@@ -85,7 +91,7 @@ public class TrajectoryService {
             endpoints = this.findEndpointsRoutine(user, keyName);
         }
         
-        if (endpoints.size() >= 2) {
+        if (reprocessRoutes && endpoints.size() >= 2) {
             this.findRoutesInUnprocessedData(user, endpoints);
         }
     }

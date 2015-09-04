@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.otognan.driverpete.security.User;
 
 
@@ -20,14 +21,13 @@ public class TrajectoryEndpoint {
     private double latitude;
     
     private double longitude;
-    
-    private int number;
 
     private String label;
     
     private String address;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
     
     public String getLabel() {
@@ -76,13 +76,5 @@ public class TrajectoryEndpoint {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-    
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
     }
 }

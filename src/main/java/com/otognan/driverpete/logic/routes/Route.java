@@ -7,6 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.otognan.driverpete.security.User;
 
 
@@ -17,11 +18,17 @@ public class Route {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     
+    @JsonIgnore
     private String routeKey;
     
     private boolean directionAtoB;
+    
+    private Long startDate;
+    
+    private Long finishDate;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
 
     public Long getId() {
@@ -56,4 +63,19 @@ public class Route {
         this.directionAtoB = directionAtoB;
     }
 
+    public Long getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Long startDate) {
+        this.startDate = startDate;
+    }
+
+    public Long getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(Long finishDate) {
+        this.finishDate = finishDate;
+    }
 }

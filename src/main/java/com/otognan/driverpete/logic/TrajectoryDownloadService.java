@@ -77,6 +77,10 @@ public class TrajectoryDownloadService {
         SortedMap<Long, String> trajectoryMap = new TreeMap<Long, String>();
         for (S3ObjectSummary objectSummary: objectListing.getObjectSummaries()) {
             String name = objectSummary.getKey();
+            // s3 might have empty key designating the folder
+            if (name.equals(directoryKey) || name.equals(directoryKey + "/")) {
+                continue;
+            }
             String dateStr = name.substring(name.lastIndexOf("/")+1, name.length());
             trajectoryMap.put(Location.dateFromString(dateStr).getTime(), name);
         }

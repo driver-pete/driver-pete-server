@@ -13,8 +13,10 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.otognan.driverpete.logic.ForbiddenDataException;
 import com.otognan.driverpete.logic.Location;
 import com.otognan.driverpete.logic.TrajectoryDownloadService;
+import com.otognan.driverpete.logic.endpoints.TrajectoryEndpoint;
 import com.otognan.driverpete.security.User;
 
 
@@ -52,8 +54,7 @@ public class RoutesService {
             }
 
         }
-        
-        
+         
         System.out.println("Processing data with routes finder..");
         for (Location point : trajectory) {
             finder.process(point);
@@ -79,18 +80,19 @@ public class RoutesService {
         System.out.println("Saving B to A routes..");
         this.saveRoutes(user, finder.getBtoARoutes(), false);
     }
-    
-    public List<byte[]> getBinaryRoutes(User user, boolean isAtoB) throws IOException, ParseException {
-        List<Route> routes = this.routesRepository.findByUserAndDirectionAtoB(user, isAtoB);
-        List<byte[]> binaryRoutes = new ArrayList<byte[]>();
-        for(Route route: routes) {
-            String key = route.getRouteKey();
-            byte[] binTrajectory = this.downloadService.downloadBinaryTrajectory(key);
-            binaryRoutes.add(binTrajectory);
-        }
-        return binaryRoutes;
+        
+    public List<Route> getRoutes(User user, boolean isAtoB) {
+        return this.routesRepository.findByUserAndDirectionAtoB(user, isAtoB);
     }
 
+    public byte[] getBinaryRoute(User user, long routeId) throws IOException, ParseException {
+        List<Route> existingRoutes = routesRepository.findByIdAndUser(routeId, user);
+        if (existingRoutes.size() != 1) {
+            throw new ForbiddenDataException("Can not find route with id for this user"); 
+        }
+        String routeKey = existingRoutes.get(0).getRouteKey();
+        return this.downloadService.downloadBinaryTrajectory(routeKey);
+    }
     
     private void saveRoutes(User user, List<List<Location>> routes, boolean isAtoB) throws Exception {
         List<Route> entities = new ArrayList<Route>();
@@ -110,6 +112,8 @@ public class RoutesService {
             routeEntity.setUser(user);
             routeEntity.setDirectionAtoB(isAtoB);
             routeEntity.setRouteKey(key);
+            routeEntity.setStartDate(trajectoryRoute.get(0).getTime());
+            routeEntity.setFinishDate(trajectoryRoute.get(trajectoryRoute.size()-1).getTime());
             
             entities.add(routeEntity);
         }
@@ -135,6 +139,7 @@ public class RoutesService {
     }
     
     public void deleteAllRoutes(User user) {
+        this.resetState(user);
         List<Route> routes = this.routesRepository.findByUser(user);
         for(Route route: routes) {
             downloadService.deleteTrajectory(route.getRouteKey());

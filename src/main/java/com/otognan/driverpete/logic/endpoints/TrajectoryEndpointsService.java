@@ -6,12 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.otognan.driverpete.logic.ForbiddenDataException;
 import com.otognan.driverpete.logic.Location;
-import com.otognan.driverpete.logic.filtering.FilteringState;
 import com.otognan.driverpete.security.User;
 
 
@@ -69,8 +68,12 @@ public class TrajectoryEndpointsService {
         for (int i = originalEndpointsSize; i < Math.min(endpoints.size(), 2); i++) {
             TrajectoryEndpoint endpointEntity = new TrajectoryEndpoint();
             endpointEntity.setUser(user);
-            endpointEntity.setLatitude(endpoints.get(i).getLatitude());
-            endpointEntity.setLongitude(endpoints.get(i).getLongitude());
+            Location location = endpoints.get(i);
+            endpointEntity.setLatitude(location.getLatitude());
+            endpointEntity.setLongitude(location.getLongitude());
+            if (i == 0) endpointEntity.setLabel("A");
+            if (i == 1) endpointEntity.setLabel("B"); 
+            endpointEntity.setAddress(location.getAddress());
 
             trajEndpointRepo.save(endpointEntity);
         }
@@ -103,8 +106,17 @@ public class TrajectoryEndpointsService {
     }
     
     public void deleteAllEndpoints(User user) {
+        this.resetState(user);
         List<TrajectoryEndpoint> trajectoryEndpointsEntities = trajEndpointRepo.findByUser(user);
         trajEndpointRepo.delete(trajectoryEndpointsEntities);
     }
     
+    public void editEndpoint(User user, TrajectoryEndpoint endpoint) throws Exception {
+        List<TrajectoryEndpoint> existingEndpoints = trajEndpointRepo.findByIdAndUser(endpoint.getId(), user);
+        if (existingEndpoints.size() != 1) {
+            throw new ForbiddenDataException("Can not find trajectory with id for this user"); 
+        }
+        endpoint.setUser(user);
+        trajEndpointRepo.save(endpoint);
+    }
 }

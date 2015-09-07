@@ -23,6 +23,7 @@ import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
 import retrofit.mime.TypedInput;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -74,11 +75,7 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     }
 
     @Test
-    public void uploadToS3SucceedsEvenIfBadData() throws Exception {
-        /*
-         * Its important during development that even bad data in case of bug in
-         * the client goes through, because otherwise it would be lost.
-         */
+    public void uploadFailsIfBadData() throws Exception {
         String inputStr = "Hello. I'm not a trajectory";
         byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes());
         TypedInput in = new TypedByteArray("application/octet-stream",
@@ -91,20 +88,62 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
             // expected error
         }
 
-        // Check that file is there
+        // Check that file is not there
+        AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
+        String uploadedKey = "TestMike/data/" + trajectoryName;
+        
+        try {
+            S3Object object = s3Client.getObject("driverpete-storage", uploadedKey);
+        } catch (AmazonServiceException e) {
+            String errorCode = e.getErrorCode();
+            if (!errorCode.equals("NoSuchKey")) {
+                throw e;
+            }
+        }
+    }
+    
+    @Test
+    public void uploadFailsIfRepeatedUpload() throws Exception {
+        byte[] trajectoryBytes = this.getStandardTrajectoryBytes();
+        List<Location> fullTrajectory = TrajectoryReader
+                .readTrajectory(trajectoryBytes);
+        List<List<Location>> pieces = new ArrayList<List<Location>>();
+        // break into inconsistent pieces - the second piece replicates the data of the first
+        pieces.add(fullTrajectory.subList(0, 480));
+        pieces.add(fullTrajectory.subList(200, 500));
+        pieces.add(fullTrajectory.subList(480, 1000));
+        
         AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
 
-        String uploadedKey = "TestMike/data/" + trajectoryName;
-
-        S3Object object = s3Client.getObject(new GetObjectRequest(
-                "driverpete-storage", uploadedKey));
-
-        String outputStr = IOUtils.toString(new InputStreamReader(object
-                .getObjectContent()));
-
-        s3Client.deleteObject("driverpete-storage", uploadedKey);
-
-        assertThat(inputStr, equalTo(outputStr));
+        String trajectoryName0 = this.generateTrajectoryName();
+        this.server().compressed(trajectoryName0,
+                new TypedByteArray("application/octet-stream",
+                        Base64.encodeBase64(TrajectoryReader.writeTrajectory(pieces.get(0)))));
+        S3Object object0 = s3Client.getObject("driverpete-storage",
+                "TestMike/data/" + trajectoryName0);
+        
+        String trajectoryName1 = this.generateTrajectoryName();
+        this.server().compressed(trajectoryName1,
+                new TypedByteArray("application/octet-stream",
+                        Base64.encodeBase64(TrajectoryReader.writeTrajectory(pieces.get(1)))));
+        // Check that second piece is not there
+        try {
+            S3Object object1 = s3Client.getObject("driverpete-storage",
+                    "TestMike/data/" + trajectoryName1);
+        } catch (AmazonServiceException e) {
+            String errorCode = e.getErrorCode();
+            if (!errorCode.equals("NoSuchKey")) {
+                throw e;
+            }
+        }
+        
+        //Third piece should be uploaded
+        String trajectoryName2 = this.generateTrajectoryName();
+        this.server().compressed(trajectoryName2,
+                new TypedByteArray("application/octet-stream",
+                        Base64.encodeBase64(TrajectoryReader.writeTrajectory(pieces.get(2)))));
+        S3Object object2 = s3Client.getObject("driverpete-storage",
+                "TestMike/data/" + trajectoryName2);
     }
 
     @Test
@@ -141,7 +180,7 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
 
         String trajectoryName = this.generateTrajectoryName();
-        ;
+
         this.server().compressed(trajectoryName,
                 new TypedByteArray("application/octet-stream", base64Bytes));
 

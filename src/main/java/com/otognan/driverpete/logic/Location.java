@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 import org.apache.http.HttpEntity;
@@ -25,10 +26,13 @@ import com.amazonaws.util.json.JSONObject;
 public class Location {
     
     // the UTC time of this location, in milliseconds since January 1, 1970.
+    @Column(nullable = true)
     private long time;
     // latitude, in degrees.
+    @Column(nullable = true)
     private double latitude;
     // longitude, in degrees.
+    @Column(nullable = true)
     private double longitude;
     
     public static double msToMph = 2.23694;

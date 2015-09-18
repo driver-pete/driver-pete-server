@@ -23,7 +23,7 @@ public class TrajectoryFilterUtils {
     static public List<Location> filterGPSData(List<Location> data) {
         TrajectoryFilter chain[] = {
                 new DuplicateTimeFilter(),
-                new VelocityOutliersFilter(85.)};
+                new VelocityOutliersFilter()};
         
         return TrajectoryFilterUtils.apply(data, new TrajectoryFilterChain(chain));
     }

@@ -29,7 +29,7 @@ public class RoutesFinder {
     }
     
     public RoutesFinder(List<Location> endpoints) throws Exception {
-        this(endpoints, 200, 60*10);
+        this(endpoints, 400, 60*10);
     }
     
     private void startRoute(Location location, int endpointIndex) {

@@ -1,5 +1,9 @@
 package com.otognan.driverpete.logic.endpoints;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -13,6 +17,12 @@ public class EndpointProcessorState {
     @Id
     private Long userId;
     
+    @Embedded 
+    @AttributeOverrides({ 
+        @AttributeOverride(name="time",column=@Column(name="prev_time")), 
+        @AttributeOverride(name="latitude",column=@Column(name="prev_latitude")), 
+        @AttributeOverride(name="longitude",column=@Column(name="prev_longitude")) 
+    }) 
     private Location processorPreviousPoint;
     private Location processorHypothesisPoint;
     private int currentCumulativeDt;

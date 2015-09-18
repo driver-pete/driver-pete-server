@@ -25,8 +25,7 @@ public class TrajectoryFilteringService {
                
         // create filters
         DuplicateTimeFilter duplicateTime = new DuplicateTimeFilter();
-        StationaryPointsFilter stationaryPoint = new StationaryPointsFilter();
-        VelocityOutliersFilter velocityOutlier = new VelocityOutliersFilter(85.);
+        VelocityOutliersFilter velocityOutlier = new VelocityOutliersFilter();
         
         // get user state for endpoints and put state into filters
         FilteringState state = stateRepository.findOne(user.getId());
@@ -35,9 +34,7 @@ public class TrajectoryFilteringService {
         }
         
         // extract endpoints
-        TrajectoryFilter chain[] = {duplicateTime,
-                stationaryPoint,
-                velocityOutlier};
+        TrajectoryFilter chain[] = {duplicateTime, velocityOutlier};
         
         List<Location> filtered = TrajectoryFilterUtils.apply(trajectory,
                 new TrajectoryFilterChain(chain));

@@ -66,7 +66,14 @@ public class RoutesFinder {
             double dt = Location.deltaTime(
                     this.currentRoute.get(this.currentRoute.size()-1), point);
             if (dt > this.continuityThreshold) {
-                this.stopRoute();
+                int index = this.closestEndpointIndex(point);
+                if (index == this.fromEndpointIndex) {
+                    this.stopRoute();
+                    // We didnt move too far from beginning, so we start the route there
+                    this.startRoute(point, index);
+                } else {
+                    this.stopRoute();
+                }
                 return;
             }
             

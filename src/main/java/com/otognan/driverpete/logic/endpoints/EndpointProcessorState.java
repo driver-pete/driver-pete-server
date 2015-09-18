@@ -1,14 +1,10 @@
 package com.otognan.driverpete.logic.endpoints;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.otognan.driverpete.logic.Location;
-import com.otognan.driverpete.security.User;
 
 
 @Entity
@@ -18,6 +14,24 @@ public class EndpointProcessorState {
     private Long userId;
     
     private Location processorPreviousPoint;
+    private Location processorHypothesisPoint;
+    private int currentCumulativeDt;
+
+    public Location getProcessorHypothesisPoint() {
+        return processorHypothesisPoint;
+    }
+
+    public void setProcessorHypothesisPoint(Location processorHypothesisPoint) {
+        this.processorHypothesisPoint = processorHypothesisPoint;
+    }
+
+    public int getCurrentCumulativeDt() {
+        return currentCumulativeDt;
+    }
+
+    public void setCurrentCumulativeDt(int currentCumulativeDt) {
+        this.currentCumulativeDt = currentCumulativeDt;
+    }
 
     public Location getProcessorPreviousPoint() {
         return processorPreviousPoint;

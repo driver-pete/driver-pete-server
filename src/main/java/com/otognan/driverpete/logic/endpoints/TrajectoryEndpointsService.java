@@ -54,6 +54,8 @@ public class TrajectoryEndpointsService {
         EndpointProcessorState state = stateRepository.findOne(user.getId());
         if (state != null) {
             processor.setPreviousPoint(state.getProcessorPreviousPoint());
+            processor.setHypothesisPoint(state.getProcessorHypothesisPoint());
+            processor.setCurrentCumulativeDt(state.getCurrentCumulativeDt());
         }
                 
         // get endpoitns
@@ -83,6 +85,8 @@ public class TrajectoryEndpointsService {
             state.setUserId(user.getId());
         }
         state.setProcessorPreviousPoint(processor.getPreviousPoint());
+        state.setProcessorHypothesisPoint(processor.getHypothesisPoint());
+        state.setCurrentCumulativeDt(processor.getCurrentCumulativeDt());
         stateRepository.save(state);
         
         return endpoints;

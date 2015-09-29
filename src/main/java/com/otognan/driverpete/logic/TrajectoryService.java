@@ -142,7 +142,7 @@ public class TrajectoryService {
         System.out.println(endpoints.size() + " endpoints found.");
         
         String toProcessKey = user.getUsername() + "/unprocessed/" + label;
-        downloadService.copyTrajectory(keyName, toProcessKey);
+        downloadService.uploadTrajectory(toProcessKey, trajectory);
         
         return endpoints;
     }

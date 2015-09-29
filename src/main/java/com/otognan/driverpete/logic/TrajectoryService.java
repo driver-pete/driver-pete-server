@@ -1,5 +1,7 @@
 package com.otognan.driverpete.logic;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,34 @@ public class TrajectoryService {
     public void processBinaryTrajectory(User user, String label, byte[] binaryTrajectory) throws Exception {
         System.out.println("Starting to process trajectory " + label);
         String keyName = user.getUsername() + "/data/" + label;
+        
+        List<Location> trajectory = TrajectoryReader.readTrajectory(binaryTrajectory);
+        if (trajectory.size() == 0) {
+            System.out.println("Ignoring empty trajectory");
+            return;
+        }
+        
+        for (int i=0; i<trajectory.size()-1; i++) {
+            if (trajectory.get(i+1).getTime() < trajectory.get(i).getTime()) {
+                System.out.println("Ignoring inconsistent time trajectory");
+                return; 
+            }
+        }
+        
+        // filter out data that for some reason breaks time continuity.
+        // This happens when client sends the data, data is uploaded, but client for
+        // some reason doesn't receive confirmation (networking error).
+        // Client is going to resend this data again.
+        Location latestUserLocation = this.getLatestLocation(user);
+        if (latestUserLocation != null) {
+            for (int i=0; i<trajectory.size(); i++) {
+                if (trajectory.get(i).getTime() < latestUserLocation.getTime()) {
+                    System.out.println("Ignoring duplicate time uploading");
+                    return; 
+                }
+            }
+        }
+        
         downloadService.uploadBinaryTrajectory(keyName, binaryTrajectory);
         
         List<Location> endpoints = this.findEndpointsRoutine(user, keyName);
@@ -112,8 +142,20 @@ public class TrajectoryService {
         System.out.println(endpoints.size() + " endpoints found.");
         
         String toProcessKey = user.getUsername() + "/unprocessed/" + label;
-        downloadService.copyTrajectory(keyName, toProcessKey);
+        downloadService.uploadTrajectory(toProcessKey, trajectory);
         
         return endpoints;
+    }
+    
+    private Location getLatestLocation(User user) throws ParseException, IOException {
+        List<String> existingTrajectoryKeys = downloadService.getTimedTrajectoryList(
+                user.getUsername() + "/data");
+        if (existingTrajectoryKeys.size() > 0) {
+           String lastKey = existingTrajectoryKeys.get(existingTrajectoryKeys.size()-1);
+           List<Location> latestTrajectory = downloadService.downloadTrajectory(lastKey);
+           return latestTrajectory.get(latestTrajectory.size() - 1);
+        } else {
+            return null;
+        }
     }
 }

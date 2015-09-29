@@ -1,19 +1,14 @@
 package com.otognan.driverpete.logic;
 
-import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assert.assertEquals;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +20,6 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.otognan.driverpete.BaseStatelesSecurityITTest;
 import com.otognan.driverpete.logic.filtering.DuplicateTimeFilter;
-import com.otognan.driverpete.logic.filtering.StationaryPointsFilter;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilter;
 import com.otognan.driverpete.logic.filtering.TrajectoryFilterUtils;
 import com.otognan.driverpete.logic.filtering.VelocityOutliersFilter;
@@ -79,7 +73,6 @@ public class FilterTests extends BaseStatelesSecurityITTest{
     @Test
     public void testRemoveOutliers() {
         List<Location> data = TrajectoryFilterUtils.apply(this.testData, new DuplicateTimeFilter());
-        data = TrajectoryFilterUtils.apply(data, new StationaryPointsFilter());
           
         double velocityThreshold = 85.;
      

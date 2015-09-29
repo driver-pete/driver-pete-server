@@ -23,6 +23,7 @@ import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
 import retrofit.mime.TypedInput;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -72,13 +73,36 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
     private String generateTrajectoryName() {
         return Location.dateToString(System.currentTimeMillis());
     }
+    
+    private int[] pathIndices(List<Location> data, List<Location> path) {
+        int indices[] = { data.indexOf(path.get(0)),
+                data.indexOf(path.get(path.size() - 1)) };
+        return indices;
+    }
+
+    private int[][] extractPathsIndices(List<Location> data,
+            List<List<Location>> paths) {
+        int result[][] = new int[paths.size()][2];
+        for (int i = 0; i < paths.size(); i++) {
+            result[i] = this.pathIndices(data, paths.get(i));
+        }
+        return result;
+    }
+    
+    private void checkRoute(List<Location> data, boolean isAtoB, int expectedSize, int[][] expectedAtoBIndices) throws Exception {
+        List<List<Location>> routes= getAllRoutes(isAtoB);
+
+        assertThat(routes.size(), equalTo(expectedSize));
+
+        int[][] pathsIndices = extractPathsIndices(data, routes);
+
+        if (expectedSize > 0) {
+            assertThat(pathsIndices, equalTo(expectedAtoBIndices));
+        }
+    }
 
     @Test
-    public void uploadToS3SucceedsEvenIfBadData() throws Exception {
-        /*
-         * Its important during development that even bad data in case of bug in
-         * the client goes through, because otherwise it would be lost.
-         */
+    public void uploadFailsIfBadData() throws Exception {
         String inputStr = "Hello. I'm not a trajectory";
         byte[] encodedBytes = Base64.encodeBase64(inputStr.getBytes());
         TypedInput in = new TypedByteArray("application/octet-stream",
@@ -91,20 +115,62 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
             // expected error
         }
 
-        // Check that file is there
+        // Check that file is not there
+        AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
+        String uploadedKey = "TestMike/data/" + trajectoryName;
+        
+        try {
+            S3Object object = s3Client.getObject("driverpete-storage", uploadedKey);
+        } catch (AmazonServiceException e) {
+            String errorCode = e.getErrorCode();
+            if (!errorCode.equals("NoSuchKey")) {
+                throw e;
+            }
+        }
+    }
+    
+    @Test
+    public void uploadFailsIfRepeatedUpload() throws Exception {
+        byte[] trajectoryBytes = this.getStandardTrajectoryBytes();
+        List<Location> fullTrajectory = TrajectoryReader
+                .readTrajectory(trajectoryBytes);
+        List<List<Location>> pieces = new ArrayList<List<Location>>();
+        // break into inconsistent pieces - the second piece replicates the data of the first
+        pieces.add(fullTrajectory.subList(0, 480));
+        pieces.add(fullTrajectory.subList(200, 500));
+        pieces.add(fullTrajectory.subList(480, 1000));
+        
         AmazonS3 s3Client = new AmazonS3Client(awsCredentials);
 
-        String uploadedKey = "TestMike/data/" + trajectoryName;
-
-        S3Object object = s3Client.getObject(new GetObjectRequest(
-                "driverpete-storage", uploadedKey));
-
-        String outputStr = IOUtils.toString(new InputStreamReader(object
-                .getObjectContent()));
-
-        s3Client.deleteObject("driverpete-storage", uploadedKey);
-
-        assertThat(inputStr, equalTo(outputStr));
+        String trajectoryName0 = this.generateTrajectoryName();
+        this.server().compressed(trajectoryName0,
+                new TypedByteArray("application/octet-stream",
+                        Base64.encodeBase64(TrajectoryReader.writeTrajectory(pieces.get(0)))));
+        S3Object object0 = s3Client.getObject("driverpete-storage",
+                "TestMike/data/" + trajectoryName0);
+        
+        String trajectoryName1 = this.generateTrajectoryName();
+        this.server().compressed(trajectoryName1,
+                new TypedByteArray("application/octet-stream",
+                        Base64.encodeBase64(TrajectoryReader.writeTrajectory(pieces.get(1)))));
+        // Check that second piece is not there
+        try {
+            S3Object object1 = s3Client.getObject("driverpete-storage",
+                    "TestMike/data/" + trajectoryName1);
+        } catch (AmazonServiceException e) {
+            String errorCode = e.getErrorCode();
+            if (!errorCode.equals("NoSuchKey")) {
+                throw e;
+            }
+        }
+        
+        //Third piece should be uploaded
+        String trajectoryName2 = this.generateTrajectoryName();
+        this.server().compressed(trajectoryName2,
+                new TypedByteArray("application/octet-stream",
+                        Base64.encodeBase64(TrajectoryReader.writeTrajectory(pieces.get(2)))));
+        S3Object object2 = s3Client.getObject("driverpete-storage",
+                "TestMike/data/" + trajectoryName2);
     }
 
     @Test
@@ -124,14 +190,14 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         List<Location> data = TrajectoryReader.readTrajectory(trajectoryBytes);
         data = TrajectoryFilterUtils.filterGPSData(data);
 
-        assertThat(data.get(478).getLatitude(), equalTo(endpoints.get(0)
+        assertThat(data.get(479).getLatitude(), equalTo(endpoints.get(0)
                 .getLatitude()));
-        assertThat(data.get(478).getLongitude(), equalTo(endpoints.get(0)
+        assertThat(data.get(479).getLongitude(), equalTo(endpoints.get(0)
                 .getLongitude()));
 
-        assertThat(data.get(669).getLatitude(), equalTo(endpoints.get(1)
+        assertThat(data.get(670).getLatitude(), equalTo(endpoints.get(1)
                 .getLatitude()));
-        assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1)
+        assertThat(data.get(670).getLongitude(), equalTo(endpoints.get(1)
                 .getLongitude()));
     }
 
@@ -141,7 +207,7 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         byte[] base64Bytes = Base64.encodeBase64(trajectoryBytes);
 
         String trajectoryName = this.generateTrajectoryName();
-        ;
+
         this.server().compressed(trajectoryName,
                 new TypedByteArray("application/octet-stream", base64Bytes));
 
@@ -156,12 +222,11 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
 
         int[][] AtoBPathsIndices = extractPathsIndices(data, routesAtoB);
         int[][] BtoAPathsIndices = extractPathsIndices(data, routesBtoA);
-
-        int expectedAtoBIndices[][] = { { 485, 659 }, { 944, 1121 },
-                { 1358, 1552 }, { 2210, 2403 }, { 2624, 2900 }, { 4379, 4509 } };
-
-        int expectedBtoAIndices[][] = { { 124, 456 }, { 678, 893 },
-                { 1137, 1317 }, { 1570, 1784 }, { 2423, 2596 }, { 3957, 4158 } };
+        
+        int expectedAtoBIndices[][] = { { 488, 656 }, { 947, 1117 },
+                { 1364, 1549 }, { 2216, 2401 }, { 2630, 2898 }, { 4400, 4526 } };
+        int expectedBtoAIndices[][] = { { 134, 455 }, { 683, 887 },
+                { 1141, 1316 }, { 1582, 1783 }, { 2429, 2597 }, { 3975, 4170 } };
         assertThat(AtoBPathsIndices, equalTo(expectedAtoBIndices));
         assertThat(BtoAPathsIndices, equalTo(expectedBtoAIndices));
     }
@@ -196,14 +261,14 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         List<Location> data = TrajectoryReader.readTrajectory(trajectoryBytes);
         data = TrajectoryFilterUtils.filterGPSData(data);
 
-        assertThat(data.get(478).getLatitude(), equalTo(endpoints.get(0)
+        assertThat(data.get(479).getLatitude(), equalTo(endpoints.get(0)
                 .getLatitude()));
-        assertThat(data.get(478).getLongitude(), equalTo(endpoints.get(0)
+        assertThat(data.get(479).getLongitude(), equalTo(endpoints.get(0)
                 .getLongitude()));
 
-        assertThat(data.get(669).getLatitude(), equalTo(endpoints.get(1)
+        assertThat(data.get(670).getLatitude(), equalTo(endpoints.get(1)
                 .getLatitude()));
-        assertThat(data.get(669).getLongitude(), equalTo(endpoints.get(1)
+        assertThat(data.get(670).getLongitude(), equalTo(endpoints.get(1)
                 .getLongitude()));
     }
 
@@ -238,11 +303,10 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         List<Location> data = TrajectoryReader.readTrajectory(trajectoryBytes);
         data = TrajectoryFilterUtils.filterGPSData(data);
         
-        int expectedAtoBIndices[][] = { { 485, 659 }, { 944, 1121 },
-                { 1358, 1552 }, { 2210, 2403 }, { 2624, 2900 }, { 4379, 4509 } };
-
-        int expectedBtoAIndices[][] = { { 124, 456 }, { 678, 893 },
-                { 1137, 1317 }, { 1570, 1784 }, { 2423, 2596 }, { 3957, 4158 } };
+        int expectedAtoBIndices[][] = { { 488, 656 }, { 947, 1117 },
+                { 1364, 1549 }, { 2216, 2401 }, { 2630, 2898 }, { 4400, 4526 } };
+        int expectedBtoAIndices[][] = { { 134, 455 }, { 683, 887 },
+                { 1141, 1316 }, { 1582, 1783 }, { 2429, 2597 }, { 3975, 4170 } };
         
         checkRoute(data, true, 6, expectedAtoBIndices);
         checkRoute(data, false, 6, expectedBtoAIndices);
@@ -258,30 +322,6 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         checkRoute(data, false, 6, expectedBtoAIndices);
     }
 
-    private int[] pathIndices(List<Location> data, List<Location> path) {
-        int indices[] = { data.indexOf(path.get(0)),
-                data.indexOf(path.get(path.size() - 1)) };
-        return indices;
-    }
-
-    private int[][] extractPathsIndices(List<Location> data,
-            List<List<Location>> paths) {
-        int result[][] = new int[paths.size()][2];
-        for (int i = 0; i < paths.size(); i++) {
-            result[i] = this.pathIndices(data, paths.get(i));
-        }
-        return result;
-    }
-    
-    private void checkRoute(List<Location> data, boolean isAtoB, int expectedSize, int[][] expectedAtoBIndices) throws Exception {
-        List<List<Location>> routes= getAllRoutes(isAtoB);
-
-        assertThat(routes.size(), equalTo(expectedSize));
-
-        int[][] pathsIndices = extractPathsIndices(data, routes);
-
-        assertThat(pathsIndices, equalTo(expectedAtoBIndices));
-    }
 
     @Test
     public void editEndpoints() throws Exception {
@@ -298,14 +338,14 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         TrajectoryEndpoint a = endpoints.get(0);
         TrajectoryEndpoint b = endpoints.get(1);
         
-        checkEndpoints("A", "3661 Valley Centre Drive, San Diego, CA 92130, USA", 
+        checkEndpoints("A", "3661 Valley Centre Dr, San Diego, CA 92130, USA", 
                 "B", "15992 Avenida Villaha, San Diego, CA 92128, USA");
     
         b.setLabel("Home");
         b.setAddress("My address");
         this.server().editEndpoint(b);
         
-        checkEndpoints("A", "3661 Valley Centre Drive, San Diego, CA 92130, USA", 
+        checkEndpoints("A", "3661 Valley Centre Dr, San Diego, CA 92130, USA", 
                 "Home", "My address");
 
         a.setLabel("Work");
@@ -346,6 +386,101 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         }
         
         checkEndpoints("Work 2", "Another address", "Home", "My address");
+    }
+    
+    @Test
+    public void testSequenceData() throws Exception {
+        
+        String dataKeys[] = {
+                "_testing/testing_sequence0/data/14-09-2015_09-15-01_PDT",
+                "_testing/testing_sequence0/data/14-09-2015_11-03-24_PDT",
+                "_testing/testing_sequence0/data/14-09-2015_13-49-55_PDT",
+                "_testing/testing_sequence0/data/14-09-2015_18-20-13_PDT",
+                "_testing/testing_sequence0/data/14-09-2015_19-59-23_PDT",
+                "_testing/testing_sequence0/data/15-09-2015_09-32-15_PDT",
+                "_testing/testing_sequence0/data/15-09-2015_22-31-21_PDT"};
+        
+        List<Location> data = new ArrayList<Location>();
+        for (String key : dataKeys) {
+            byte[] pieceBytes = downloadService.downloadBinaryTrajectory(key);
+            List<Location> piece = TrajectoryReader.readTrajectory(pieceBytes);
+            data.addAll(TrajectoryFilterUtils.filterGPSData(piece));
+            byte[] base64Bytes = Base64.encodeBase64(pieceBytes);
+
+            String[] pathComponents = key.split("/");
+            this.server().compressed(
+                            pathComponents[pathComponents.length-1],
+                            new TypedByteArray("application/octet-stream",
+                                    base64Bytes));
+        }
+        
+        // because of not saving the state between pieces result of filtering the whole data is different
+        // data = TrajectoryFilterUtils.filterGPSData(data);
+
+        List<TrajectoryEndpoint> endpoints = this.server()
+                .trajectoryEndpoints();
+        
+        assertThat(endpoints.size(), equalTo(2));
+        
+        assertThat(data.get(5).getLatitude(), equalTo(endpoints.get(0)
+              .getLatitude()));
+        assertThat(data.get(5).getLongitude(), equalTo(endpoints.get(0)
+                .getLongitude()));
+        
+        assertThat(data.get(122).getLatitude(), equalTo(endpoints.get(1)
+                .getLatitude()));
+        assertThat(data.get(122).getLongitude(), equalTo(endpoints.get(1)
+                .getLongitude()));
+        
+        int expectedAtoBIndices[][] = { { 11, 111 }, { 556, 730 } };
+        int expectedBtoAIndices[][] = { { 288, 387 } };
+        
+        checkRoute(data, true, 2, expectedAtoBIndices);
+        checkRoute(data, false, 1, expectedBtoAIndices);
+    }
+    
+    
+    @Test
+    public void testSequenceData2() throws Exception {
+        
+        String dataKeys[] = {
+                "_testing/testing_sequence1/data/23-09-2015_09-33-01_PDT",
+                "_testing/testing_sequence1/data/23-09-2015_14-11-39_PDT",
+                "_testing/testing_sequence1/data/23-09-2015_15-14-59_PDT"};
+        
+        List<Location> data = new ArrayList<Location>();
+        for (String key : dataKeys) {
+            byte[] pieceBytes = downloadService.downloadBinaryTrajectory(key);
+            data.addAll(TrajectoryReader.readTrajectory(pieceBytes));
+            byte[] base64Bytes = Base64.encodeBase64(pieceBytes);
+
+            String[] pathComponents = key.split("/");
+            this.server().compressed(
+                            pathComponents[pathComponents.length-1],
+                            new TypedByteArray("application/octet-stream",
+                                    base64Bytes));
+        }
+
+        List<TrajectoryEndpoint> endpoints = this.server()
+                .trajectoryEndpoints();
+        
+        assertThat(endpoints.size(), equalTo(2));
+        
+        assertThat(data.get(9).getLatitude(), equalTo(endpoints.get(0)
+              .getLatitude()));
+        assertThat(data.get(9).getLongitude(), equalTo(endpoints.get(0)
+                .getLongitude()));
+        
+        assertThat(data.get(140).getLatitude(), equalTo(endpoints.get(1)
+                .getLatitude()));
+        assertThat(data.get(140).getLongitude(), equalTo(endpoints.get(1)
+                .getLongitude()));
+        
+        int expectedAtoBIndices[][] = { { 12, 126 } };
+        int expectedBtoAIndices[][] = { { } };
+        
+        checkRoute(data, true, 1, expectedAtoBIndices);
+        checkRoute(data, false, 0, expectedBtoAIndices);
     }
     
     private void checkEndpoints(String expectedLabelA, String expectedAddressA,

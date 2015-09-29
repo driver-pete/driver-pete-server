@@ -107,6 +107,14 @@ public class Location {
         return "Location [time=" + dateStr + ", latitude=" + latitude
                 + ", longitude=" + longitude + "]";
     }
+    
+    public String toDebugString(boolean withAddress) {
+        if (withAddress) {
+            return this.toString() + " Address: " + this.getAddress();
+        } else {
+            return this.toString();
+        }
+    }
 
     @Override
     public int hashCode() {

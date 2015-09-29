@@ -52,7 +52,6 @@ public class RoutesService {
                 List<Location> currentRoute = downloadService.downloadTrajectory(currentRouteKey);
                 finder.setCurrentRoute(currentRoute);
             }
-
         }
          
         System.out.println("Processing data with routes finder..");
@@ -67,18 +66,26 @@ public class RoutesService {
         }
         state.setFromEndpointIndex(finder.getFromEndpointIndex());
         List<Location> currentRoute = finder.getCurrentRoute();
+        String currentRouteKey = user.getUsername() + "/routes_state/current_route";
         if (currentRoute.size() > 0) {
-            String keyToUpload = user.getUsername() + "/routes_state/current_route";
-            downloadService.uploadTrajectory(keyToUpload, currentRoute);
-            state.setCurrentRouteKey(keyToUpload);
+            downloadService.uploadTrajectory(currentRouteKey, currentRoute);
+            state.setCurrentRouteKey(currentRouteKey);
+        } else {
+            state.setCurrentRouteKey(null);
         }
         
         stateRepository.save(state);
         
-        System.out.println("Saving A to B routes..");
-        this.saveRoutes(user, finder.getAtoBRoutes(), true);
-        System.out.println("Saving B to A routes..");
-        this.saveRoutes(user, finder.getBtoARoutes(), false);
+        List<List<Location>> aToBRoutes = finder.getAtoBRoutes();
+        if (aToBRoutes.size() > 0) {
+            System.out.println("Saving A to B routes..");
+            this.saveRoutes(user, aToBRoutes, true);
+        }
+        List<List<Location>> bToARoutes = finder.getBtoARoutes();
+        if (bToARoutes.size() > 0) {
+            System.out.println("Saving B to A routes..");
+            this.saveRoutes(user, bToARoutes, false);
+        }
     }
         
     public List<Route> getRoutes(User user, boolean isAtoB) {
@@ -105,7 +112,14 @@ public class RoutesService {
             }
             key += this.nextS3Id();
             
-            System.out.println("Uploading routes " + key);
+            
+            Location start = trajectoryRoute.get(0);
+            Location finish = trajectoryRoute.get(trajectoryRoute.size()-1);
+            System.out.println("Uploading route " + key + 
+                    " size:" + trajectoryRoute.size() + 
+                    " duration: " + (finish.getTime() - start.getTime()) + 
+                    " start: " + start.toSerializationString() + 
+                    " end: " + finish.toSerializationString());
             downloadService.uploadTrajectory(key, trajectoryRoute);
             
             Route routeEntity = new Route();

@@ -96,7 +96,9 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
 
         int[][] pathsIndices = extractPathsIndices(data, routes);
 
-        assertThat(pathsIndices, equalTo(expectedAtoBIndices));
+        if (expectedSize > 0) {
+            assertThat(pathsIndices, equalTo(expectedAtoBIndices));
+        }
     }
 
     @Test
@@ -435,6 +437,50 @@ public class TrajectoryLogicIntegrationTest extends BaseStatelesSecurityITTest {
         
         checkRoute(data, true, 2, expectedAtoBIndices);
         checkRoute(data, false, 1, expectedBtoAIndices);
+    }
+    
+    
+    @Test
+    public void testSequenceData2() throws Exception {
+        
+        String dataKeys[] = {
+                "_testing/testing_sequence1/data/23-09-2015_09-33-01_PDT",
+                "_testing/testing_sequence1/data/23-09-2015_14-11-39_PDT",
+                "_testing/testing_sequence1/data/23-09-2015_15-14-59_PDT"};
+        
+        List<Location> data = new ArrayList<Location>();
+        for (String key : dataKeys) {
+            byte[] pieceBytes = downloadService.downloadBinaryTrajectory(key);
+            data.addAll(TrajectoryReader.readTrajectory(pieceBytes));
+            byte[] base64Bytes = Base64.encodeBase64(pieceBytes);
+
+            String[] pathComponents = key.split("/");
+            this.server().compressed(
+                            pathComponents[pathComponents.length-1],
+                            new TypedByteArray("application/octet-stream",
+                                    base64Bytes));
+        }
+
+        List<TrajectoryEndpoint> endpoints = this.server()
+                .trajectoryEndpoints();
+        
+        assertThat(endpoints.size(), equalTo(2));
+        
+        assertThat(data.get(9).getLatitude(), equalTo(endpoints.get(0)
+              .getLatitude()));
+        assertThat(data.get(9).getLongitude(), equalTo(endpoints.get(0)
+                .getLongitude()));
+        
+        assertThat(data.get(140).getLatitude(), equalTo(endpoints.get(1)
+                .getLatitude()));
+        assertThat(data.get(140).getLongitude(), equalTo(endpoints.get(1)
+                .getLongitude()));
+        
+        int expectedAtoBIndices[][] = { { 12, 126 } };
+        int expectedBtoAIndices[][] = { { } };
+        
+        checkRoute(data, true, 1, expectedAtoBIndices);
+        checkRoute(data, false, 0, expectedBtoAIndices);
     }
     
     private void checkEndpoints(String expectedLabelA, String expectedAddressA,
